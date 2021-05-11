@@ -19,8 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow()
         window?.makeKeyAndVisible()
         window?.backgroundColor = .black
-        let navController = UINavigationController(rootViewController: MainTabBarController())
-        window?.rootViewController = navController
+        window?.rootViewController = MainTabBarController()
         return true
     }
 

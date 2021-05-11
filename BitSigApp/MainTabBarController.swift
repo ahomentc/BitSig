@@ -13,7 +13,7 @@ class MainTabBarController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tabBar.tintColor = .black
+        tabBar.tintColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1)
         tabBar.isTranslucent = false
         
         setupViewControllers()
@@ -27,10 +27,10 @@ class MainTabBarController: UITabBarController {
     
     func setupViewControllers() {
 //        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let signNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "scan"), selectedImage: #imageLiteral(resourceName: "scan"), rootViewController: SignController())
-        let signaturesNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "signature"), selectedImage: #imageLiteral(resourceName: "signature"), rootViewController: SignaturesController())
-        let tokensNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "wallet"), selectedImage: #imageLiteral(resourceName: "wallet"), rootViewController: TokensController())
-        let settingsNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "settings"), selectedImage: #imageLiteral(resourceName: "settings"), rootViewController: SettingsController())
+        let signNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "scan"), selectedImage: #imageLiteral(resourceName: "scan"), text: "Scan", rootViewController: ScanController())
+        let signaturesNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "signature"), selectedImage: #imageLiteral(resourceName: "signature"), text: "Signatures", rootViewController: SignaturesController())
+        let tokensNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "wallet"), selectedImage: #imageLiteral(resourceName: "wallet"), text: "NFTs", rootViewController: TokensController())
+        let settingsNavController = self.templateNavController(unselectedImage: #imageLiteral(resourceName: "settings"), selectedImage: #imageLiteral(resourceName: "settings"), text: "Settings", rootViewController: SettingsController())
         
         self.selectedIndex = 0
         
@@ -49,13 +49,16 @@ class MainTabBarController: UITabBarController {
         }
     }
     
-    private func templateNavController(unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController = UIViewController()) -> UINavigationController {
+    private func templateNavController(unselectedImage: UIImage, selectedImage: UIImage, text: String, rootViewController: UIViewController = UIViewController()) -> UINavigationController {
         let viewController = rootViewController
         let navController = UINavigationController(rootViewController: viewController)
         navController.navigationBar.isTranslucent = false
+        navController.navigationBar.backgroundColor = .blue
         navController.tabBarItem.image = unselectedImage
         navController.tabBarItem.selectedImage = selectedImage
-        navController.tabBarItem.imageInsets = UIEdgeInsets(top: 4, left: 0, bottom: -4, right: 0)
+        navController.tabBarItem.imageInsets = UIEdgeInsets(top: 0, left: 0, bottom: 2, right: 0)
+        navController.tabBarItem.title = text
+        navController.tabBarItem.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -5)
         return navController
     }
 }

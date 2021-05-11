@@ -17,4 +17,5 @@ target 'BitSigApp' do
   pod 'Firebase/Storage'
   pod 'Firebase/Core'
   pod 'Firebase/Messaging'
+  pod 'SAConfettiView'
 end

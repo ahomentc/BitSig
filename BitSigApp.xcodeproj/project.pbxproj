@@ -3,10 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		75926ABB264A1A3B0001D11C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75926ABA264A1A3B0001D11C /* GoogleService-Info.plist */; };
+		75926AC3264A3D290001D11C /* CreateWalletController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75926AC2264A3D290001D11C /* CreateWalletController.swift */; };
+		75CBAE40264A471C004D53C7 /* CryptoStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CBAE3F264A471C004D53C7 /* CryptoStructs.swift */; };
+		75CBAE46264A4ADC004D53C7 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CBAE45264A4ADC004D53C7 /* Extensions.swift */; };
+		75CBAE73264A5578004D53C7 /* FirebaseUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CBAE72264A5578004D53C7 /* FirebaseUtilities.swift */; };
+		75CBAE77264A56FC004D53C7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CBAE76264A56FC004D53C7 /* Models.swift */; };
+		75CBAE7D264A6A90004D53C7 /* SignController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CBAE7C264A6A90004D53C7 /* SignController.swift */; };
 		D5B32DCF2648FCF000513D37 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DCE2648FCF000513D37 /* AppDelegate.swift */; };
 		D5B32DD52648FCFE00513D37 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5B32DD42648FCFE00513D37 /* Assets.xcassets */; };
 		D5B32DD82648FCFE00513D37 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5B32DD72648FCFE00513D37 /* Preview Assets.xcassets */; };
@@ -14,7 +21,7 @@
 		D5B32DE62648FD0600513D37 /* BitSigAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DE52648FD0600513D37 /* BitSigAppTests.swift */; };
 		D5B32DF12648FD0600513D37 /* BitSigAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DF02648FD0600513D37 /* BitSigAppUITests.swift */; };
 		D5B32DFF2648FDCE00513D37 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DFE2648FDCE00513D37 /* MainTabBarController.swift */; };
-		D5B32E01264902EB00513D37 /* SignController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E00264902EB00513D37 /* SignController.swift */; };
+		D5B32E01264902EB00513D37 /* ScanController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E00264902EB00513D37 /* ScanController.swift */; };
 		D5B32E07264903EC00513D37 /* SignaturesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E06264903EC00513D37 /* SignaturesController.swift */; };
 		D5B32E0A2649048100513D37 /* TokensController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E092649048100513D37 /* TokensController.swift */; };
 		D5B32E0D264904B000513D37 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E0C264904B000513D37 /* SettingsController.swift */; };
@@ -39,8 +46,28 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		75CBAE4E264A4CE8004D53C7 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		1AB004E829A10B4898E61864 /* Pods-BitSigApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BitSigApp.debug.xcconfig"; path = "Target Support Files/Pods-BitSigApp/Pods-BitSigApp.debug.xcconfig"; sourceTree = "<group>"; };
+		75926ABA264A1A3B0001D11C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		75926AC2264A3D290001D11C /* CreateWalletController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletController.swift; sourceTree = "<group>"; };
+		75CBAE3F264A471C004D53C7 /* CryptoStructs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoStructs.swift; sourceTree = "<group>"; };
+		75CBAE45264A4ADC004D53C7 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		75CBAE72264A5578004D53C7 /* FirebaseUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUtilities.swift; sourceTree = "<group>"; };
+		75CBAE76264A56FC004D53C7 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		75CBAE7C264A6A90004D53C7 /* SignController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignController.swift; sourceTree = "<group>"; };
 		89B5B297078121BB22842D6E /* Pods_BitSigApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BitSigApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD7EC60478358E032DE090FF /* Pods-BitSigApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BitSigApp.release.xcconfig"; path = "Target Support Files/Pods-BitSigApp/Pods-BitSigApp.release.xcconfig"; sourceTree = "<group>"; };
 		D5B32DCB2648FCF000513D37 /* BitSigApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BitSigApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,7 +83,7 @@
 		D5B32DF02648FD0600513D37 /* BitSigAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitSigAppUITests.swift; sourceTree = "<group>"; };
 		D5B32DF22648FD0600513D37 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D5B32DFE2648FDCE00513D37 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
-		D5B32E00264902EB00513D37 /* SignController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignController.swift; sourceTree = "<group>"; };
+		D5B32E00264902EB00513D37 /* ScanController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanController.swift; sourceTree = "<group>"; };
 		D5B32E06264903EC00513D37 /* SignaturesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignaturesController.swift; sourceTree = "<group>"; };
 		D5B32E092649048100513D37 /* TokensController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensController.swift; sourceTree = "<group>"; };
 		D5B32E0C264904B000513D37 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -97,6 +124,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		75CBAE3E264A46EB004D53C7 /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+				75CBAE3F264A471C004D53C7 /* CryptoStructs.swift */,
+			);
+			path = Crypto;
+			sourceTree = "<group>";
+		};
 		D5B32DC22648FCEF00513D37 = {
 			isa = PBXGroup;
 			children = (
@@ -124,15 +159,20 @@
 			isa = PBXGroup;
 			children = (
 				D5B32E022649030C00513D37 /* Sign */,
-				D5B32E0B264904A300513D37 /* Settings */,
-				D5B32E082649046A00513D37 /* Tokens */,
 				D5B32E05264903E100513D37 /* Signatures */,
+				D5B32E082649046A00513D37 /* Tokens */,
+				D5B32E0B264904A300513D37 /* Settings */,
+				75CBAE3E264A46EB004D53C7 /* Crypto */,
+				75926ABA264A1A3B0001D11C /* GoogleService-Info.plist */,
 				D5B32DCE2648FCF000513D37 /* AppDelegate.swift */,
 				D5B32DFE2648FDCE00513D37 /* MainTabBarController.swift */,
 				D5B32DD42648FCFE00513D37 /* Assets.xcassets */,
 				D5B32DD92648FCFE00513D37 /* LaunchScreen.storyboard */,
 				D5B32DDC2648FCFF00513D37 /* Info.plist */,
 				D5B32DD62648FCFE00513D37 /* Preview Content */,
+				75CBAE45264A4ADC004D53C7 /* Extensions.swift */,
+				75CBAE72264A5578004D53C7 /* FirebaseUtilities.swift */,
+				75CBAE76264A56FC004D53C7 /* Models.swift */,
 			);
 			path = BitSigApp;
 			sourceTree = "<group>";
@@ -166,7 +206,9 @@
 		D5B32E022649030C00513D37 /* Sign */ = {
 			isa = PBXGroup;
 			children = (
-				D5B32E00264902EB00513D37 /* SignController.swift */,
+				D5B32E00264902EB00513D37 /* ScanController.swift */,
+				75926AC2264A3D290001D11C /* CreateWalletController.swift */,
+				75CBAE7C264A6A90004D53C7 /* SignController.swift */,
 			);
 			path = Sign;
 			sourceTree = "<group>";
@@ -201,7 +243,6 @@
 				1AB004E829A10B4898E61864 /* Pods-BitSigApp.debug.xcconfig */,
 				BD7EC60478358E032DE090FF /* Pods-BitSigApp.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -217,12 +258,15 @@
 				D5B32DC82648FCEF00513D37 /* Frameworks */,
 				D5B32DC92648FCEF00513D37 /* Resources */,
 				77E21149B0D9850E06DE400B /* [CP] Embed Pods Frameworks */,
+				75CBAE4E264A4CE8004D53C7 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = BitSigApp;
+			packageProductDependencies = (
+			);
 			productName = BitSigApp;
 			productReference = D5B32DCB2648FCF000513D37 /* BitSigApp.app */;
 			productType = "com.apple.product-type.application";
@@ -295,6 +339,8 @@
 				Base,
 			);
 			mainGroup = D5B32DC22648FCEF00513D37;
+			packageReferences = (
+			);
 			productRefGroup = D5B32DCC2648FCF000513D37 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -313,6 +359,7 @@
 			files = (
 				D5B32DDB2648FCFE00513D37 /* LaunchScreen.storyboard in Resources */,
 				D5B32DD82648FCFE00513D37 /* Preview Assets.xcassets in Resources */,
+				75926ABB264A1A3B0001D11C /* GoogleService-Info.plist in Resources */,
 				D5B32E0F264911AC00513D37 /* Podfile in Resources */,
 				D5B32DD52648FCFE00513D37 /* Assets.xcassets in Resources */,
 			);
@@ -381,12 +428,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75CBAE77264A56FC004D53C7 /* Models.swift in Sources */,
 				D5B32E0D264904B000513D37 /* SettingsController.swift in Sources */,
+				75CBAE46264A4ADC004D53C7 /* Extensions.swift in Sources */,
+				75926AC3264A3D290001D11C /* CreateWalletController.swift in Sources */,
+				75CBAE7D264A6A90004D53C7 /* SignController.swift in Sources */,
 				D5B32E07264903EC00513D37 /* SignaturesController.swift in Sources */,
 				D5B32E0A2649048100513D37 /* TokensController.swift in Sources */,
+				75CBAE73264A5578004D53C7 /* FirebaseUtilities.swift in Sources */,
 				D5B32DFF2648FDCE00513D37 /* MainTabBarController.swift in Sources */,
-				D5B32E01264902EB00513D37 /* SignController.swift in Sources */,
+				D5B32E01264902EB00513D37 /* ScanController.swift in Sources */,
 				D5B32DCF2648FCF000513D37 /* AppDelegate.swift in Sources */,
+				75CBAE40264A471C004D53C7 /* CryptoStructs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,6 +610,7 @@
 				DEVELOPMENT_TEAM = PVFH9G54XH;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = BitSigApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -578,6 +632,7 @@
 				DEVELOPMENT_TEAM = PVFH9G54XH;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = BitSigApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
