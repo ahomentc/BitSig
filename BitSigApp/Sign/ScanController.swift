@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import web3swift
 import AVFoundation
 
 // For Crypto stuff:
@@ -16,7 +15,8 @@ import AVFoundation
 // Just need to create a wallet so that I can use their private key to sign their signature message
 // Easy to do :)
 
-class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
+class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, CreateWalletControllerDelegate {
+    
     var captureSession: AVCaptureSession!
     var previewLayer: AVCaptureVideoPreviewLayer!
     
@@ -34,6 +34,9 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         self.navigationController?.navigationBar.backgroundColor = UIColor.init(white: 0.98, alpha: 1)
         self.navigationController?.navigationBar.barTintColor = UIColor.init(white: 0.98, alpha: 1)
         self.view.backgroundColor = UIColor.init(white: 0.98, alpha: 1)
+        
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        navigationItem.backBarButtonItem?.tintColor = .black
         
         let textAttributes = [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 18), NSAttributedString.Key.foregroundColor : UIColor.black]
         let navLabel = UILabel()
@@ -112,32 +115,48 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     func found(code: String) {
-        print(code)
+        // verify that the QR code belongs to the bitsig app or has the link to it as the first one
         
-        // check if the user has a wallet
-        if let hasWalletRetrieved = UserDefaults.standard.object(forKey: "hasWallet") as? Data {
-            guard let hasWallet = try? JSONDecoder().decode(Bool.self, from: hasWalletRetrieved) else {
-                return
-            }
-            if hasWallet {
-                // panel showing that they've signed the nft and it's been added to their signatures
-                // button to take to controls with options such as paying gas to get on contract now instead of wait
+        if code == "https://apps.apple.com/in/app/bitsig/id1566975289" {
+            // check if the user has a wallet
+            if let hasWalletRetrieved = UserDefaults.standard.object(forKey: "hasWallet") as? Data {
+                guard let hasWallet = try? JSONDecoder().decode(Bool.self, from: hasWalletRetrieved) else {
+                    return
+                }
+                if hasWallet {
+                    let signController = SignController()
+                    signController.QRCodeValue = code
+                    navigationController?.pushViewController(signController, animated: true)
+                }
+                else {
+                    // present CreateWalletController
+                    let createWalletController = CreateWalletController()
+                    createWalletController.modalPresentationStyle = .fullScreen
+                    present(createWalletController, animated: true, completion: nil)
+                }
             }
             else {
-                // present CreateWalletController
+                // launch confetti
+                
                 let createWalletController = CreateWalletController()
                 createWalletController.modalPresentationStyle = .fullScreen
+                createWalletController.delegate = self
+                createWalletController.QRCodeValue = code
                 present(createWalletController, animated: true, completion: nil)
             }
         }
         else {
-            // launch confetti
+            // for all other tokens that aren't the first one
             
-            let createWalletController = CreateWalletController()
-            createWalletController.modalPresentationStyle = .fullScreen
-            present(createWalletController, animated: true, completion: nil)
-            captureSession.stopRunning()
+            // for now just restart camera
+            captureSession.startRunning()
         }
+    }
+    
+    func goToTokenSignPage(QRValue: String) {
+        let signController = SignController()
+        signController.QRCodeValue = QRValue
+        navigationController?.pushViewController(signController, animated: true)
     }
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {

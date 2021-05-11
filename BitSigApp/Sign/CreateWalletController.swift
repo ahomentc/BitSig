@@ -14,11 +14,18 @@ import SAConfettiView
 
 // need option to import account too
 
+protocol CreateWalletControllerDelegate{
+    func goToTokenSignPage(QRValue: String)
+}
+
 class CreateWalletController: UIViewController {
     
     let confettiView = SAConfettiView()
     var mnemonics = ""
     var equal_mnemonics = ""
+    var QRCodeValue = ""
+    
+    var delegate: CreateWalletControllerDelegate?
     
     // need an "or login" button
     
@@ -129,6 +136,73 @@ class CreateWalletController: UIViewController {
         return button
     }()
     
+    private let restoreWalletButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Recover Wallet", for: .normal)
+        button.backgroundColor = UIColor.clear
+        button.setTitleColor(UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1), for: .normal)
+        button.layer.cornerRadius = 15
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.addTarget(self, action: #selector(hasRestore), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var restoreEmailTextField: UITextField = {
+        let tf = UITextField()
+        tf.autocorrectionType = .no
+        tf.autocapitalizationType = .none
+        tf.keyboardType = .emailAddress
+        tf.placeholder = "Email"
+        tf.backgroundColor = UIColor(white: 0, alpha: 0)
+        tf.borderStyle = .roundedRect
+        tf.font = UIFont.systemFont(ofSize: 16)
+        tf.delegate = self
+        tf.isHidden = true
+        tf.addTarget(self, action: #selector(handleRestoreTextInputChange), for: .editingChanged)
+        return tf
+    }()
+    
+    private lazy var restorePasswordTextField: UITextField = {
+        let tf = UITextField()
+        tf.placeholder = "Password"
+        tf.isSecureTextEntry = true
+        tf.backgroundColor = UIColor(white: 0, alpha: 0)
+        tf.borderStyle = .roundedRect
+        tf.layer.cornerRadius = 20
+        tf.font = UIFont.systemFont(ofSize: 16)
+        tf.delegate = self
+        tf.isHidden = true
+        tf.addTarget(self, action: #selector(handleRestoreTextInputChange), for: .editingChanged)
+        return tf
+    }()
+    
+    private lazy var recoveryPhraseTextField: UITextField = {
+        let tf = UITextField()
+        tf.autocorrectionType = .no
+        tf.autocapitalizationType = .none
+        tf.placeholder = "Recovery Phrase"
+        tf.backgroundColor = UIColor(white: 0, alpha: 0)
+        tf.borderStyle = .roundedRect
+        tf.font = UIFont.systemFont(ofSize: 16)
+        tf.delegate = self
+        tf.isHidden = true
+        tf.addTarget(self, action: #selector(handleRestoreTextInputChange), for: .editingChanged)
+        return tf
+    }()
+    
+    private let submitRestoreButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Restore Wallet", for: .normal)
+        button.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1)
+        button.layer.cornerRadius = 15
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(self, action: #selector(handleRestore), for: .touchUpInside)
+//        button.isEnabled = false
+        button.isHidden = true
+        return button
+    }()
+    
     private lazy var finishWallet: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Done", for: .normal)
@@ -181,6 +255,9 @@ class CreateWalletController: UIViewController {
         view.addSubview(stackView)
         stackView.anchor(top: walletExplanationLabel.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 10, paddingLeft: 40, paddingRight: 40, height: 214)
         
+        view.addSubview(restoreWalletButton)
+        restoreWalletButton.anchor(top: stackView.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 15, paddingLeft: 40, paddingRight: 40, height: 30)
+        
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tap)
         
@@ -202,6 +279,17 @@ class CreateWalletController: UIViewController {
             submitButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 0.7)
         }
     }
+    
+    @objc private func handleRestoreTextInputChange() {
+            let isFormValid = restoreEmailTextField.text?.isEmpty == false && restorePasswordTextField.text?.isEmpty == false
+            if isFormValid {
+                submitRestoreButton.isEnabled = true
+                submitRestoreButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1)
+            } else {
+                submitRestoreButton.isEnabled = false
+                submitRestoreButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 0.7)
+            }
+        }
     
     @objc private func handleSignUp() {
         guard let password = passwordTextField.text else { return }
@@ -226,10 +314,9 @@ class CreateWalletController: UIViewController {
         submitButton.isEnabled = false
         submitButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 0.7)
         
-        self.createWallet(password: password)
-//        Auth.auth().createUser(withEmail: email, password: password) { (err) in
-//            self.createWallet(password: password)
-//        }
+        Auth.auth().createUser(withEmail: email, password: password) { (err) in
+            self.createWallet(password: password)
+        }
     }
     
     func createWallet(password: String) {
@@ -241,6 +328,7 @@ class CreateWalletController: UIViewController {
             self.submitButton.alpha = 0
             self.walletExplanationLabel.alpha = 0
             self.walletExplanationTwoLabel.alpha = 0
+            self.restoreWalletButton.alpha = 0
         }
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
             self.emailTextField.isHidden = true
@@ -249,21 +337,48 @@ class CreateWalletController: UIViewController {
             self.submitButton.isHidden = true
             self.walletExplanationLabel.isHidden = true
             self.walletExplanationTwoLabel.isHidden = true
+            self.restoreWalletButton.isHidden = true
             
             let bitsOfEntropy: Int = 128 // Entropy is a measure of password strength. Usually used 128 or 256 bits.
             let mnemonics = try! BIP39.generateMnemonics(bitsOfEntropy: bitsOfEntropy)!
             self.mnemonics = mnemonics
             self.displayMnemonics(mnemonics: mnemonics)
-    //        let keystore = try! BIP32Keystore(
-    //            mnemonics: mnemonics,
-    //            password: password,
-    //            mnemonicsPassword: "",
-    //            language: .english)!
-    //        let name = "New HD Wallet"
-    //        let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-    //        let address = keystore.addresses!.first!.address
-    //        let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
+            let keystore = try! BIP32Keystore(
+                mnemonics: mnemonics,
+                password: password,
+                mnemonicsPassword: "",
+                language: .english)!
+            let name = "New HD Wallet"
+            let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
+            let address = keystore.addresses!.first!.address
+            let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
+            
+            if let hasWallet = try? JSONEncoder().encode(true) {
+                UserDefaults.standard.set(hasWallet, forKey: "hasWallet")
+            }
         }
+    }
+    
+    func restoreWallet() {
+        guard let password = self.restorePasswordTextField.text else { return }
+        guard let mnemonics = self.recoveryPhraseTextField.text else { return }
+        
+        // add verification to make sure mnemonics are formatted right
+        let keystore = try! BIP32Keystore(
+            mnemonics: mnemonics,
+            password: password,
+            mnemonicsPassword: "",
+            language: .english)!
+        let name = "New HD Wallet"
+        let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
+        let address = keystore.addresses!.first!.address
+        let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
+        
+        if let hasWallet = try? JSONEncoder().encode(true) {
+            UserDefaults.standard.set(hasWallet, forKey: "hasWallet")
+        }
+        
+        self.closeWalletCreation()
     }
     
     func displayMnemonics(mnemonics: String) {
@@ -298,9 +413,84 @@ class CreateWalletController: UIViewController {
         self.mnemonicsLabel.attributedText = attributedText
     }
     
+    @objc func hasRestore() {
+        let restoreStackView = UIStackView(arrangedSubviews: [restoreEmailTextField, restorePasswordTextField, recoveryPhraseTextField, submitRestoreButton])
+        restoreStackView.distribution = .fillEqually
+        restoreStackView.axis = .vertical
+        restoreStackView.spacing = 10
+        
+        view.addSubview(restoreStackView)
+        restoreStackView.anchor(top: walletExplanationLabel.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 10, paddingLeft: 40, paddingRight: 40, height: 214)
+        
+        self.restoreEmailTextField.isHidden = false
+        self.restorePasswordTextField.isHidden = false
+        self.recoveryPhraseTextField.isHidden = false
+        self.submitRestoreButton.isHidden = false
+        
+        self.restoreEmailTextField.alpha = 0
+        self.restorePasswordTextField.alpha = 0
+        self.recoveryPhraseTextField.alpha = 0
+        self.submitRestoreButton.alpha = 0
+        
+        UIView.animate(withDuration: 0.5) {
+            self.emailTextField.alpha = 0
+            self.passwordTextField.alpha = 0
+            self.passwordMatchTextField.alpha = 0
+            self.submitButton.alpha = 0
+            self.walletExplanationLabel.alpha = 0
+            self.walletExplanationTwoLabel.alpha = 0
+            self.restoreWalletButton.alpha = 0
+        }
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
+            self.emailTextField.isHidden = true
+            self.passwordTextField.isHidden = true
+            self.passwordMatchTextField.isHidden = true
+            self.submitButton.isHidden = true
+            self.walletExplanationLabel.isHidden = true
+            self.walletExplanationTwoLabel.isHidden = true
+            self.restoreWalletButton.isHidden = true
+            
+            UIView.animate(withDuration: 0.5) {
+                self.restoreEmailTextField.alpha = 1
+                self.restorePasswordTextField.alpha = 1
+                self.recoveryPhraseTextField.alpha = 1
+                self.submitRestoreButton.alpha = 1
+            }
+        }
+    }
+    
+    @objc func handleRestore() {
+        guard let email = self.restoreEmailTextField.text else { return }
+        guard let password = self.restorePasswordTextField.text else { return }
+        
+        submitRestoreButton.isEnabled = false
+        submitRestoreButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 0.7)
+        Auth.auth().signIn(withEmail: email, password: password, completion: { (user, err) in
+            if let err = err {
+                print("Failed to sign in with email:", err)
+                self.resetRestoreInputFields()
+                return
+            }
+            self.restoreWallet()
+        })
+        
+    }
+    
+    private func resetRestoreInputFields() {
+        restorePasswordTextField.text = ""
+        restoreEmailTextField.isUserInteractionEnabled = true
+        restorePasswordTextField.isUserInteractionEnabled = true
+        
+        submitRestoreButton.isEnabled = false
+        submitRestoreButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 0.7)
+    }
+    
     @objc func closeWalletCreation() {
-        print("hi")
-        self.dismiss(animated: true, completion: {})
+        self.dismiss(animated: true, completion: {
+            if self.QRCodeValue != "" {
+                self.delegate?.goToTokenSignPage(QRValue: self.QRCodeValue)
+            }
+        })
     }
     
     @objc func dismissKeyboard() {
