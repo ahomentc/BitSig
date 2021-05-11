@@ -1,0 +1,718 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D5B32DCF2648FCF000513D37 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DCE2648FCF000513D37 /* AppDelegate.swift */; };
+		D5B32DD52648FCFE00513D37 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5B32DD42648FCFE00513D37 /* Assets.xcassets */; };
+		D5B32DD82648FCFE00513D37 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5B32DD72648FCFE00513D37 /* Preview Assets.xcassets */; };
+		D5B32DDB2648FCFE00513D37 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D5B32DD92648FCFE00513D37 /* LaunchScreen.storyboard */; };
+		D5B32DE62648FD0600513D37 /* BitSigAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DE52648FD0600513D37 /* BitSigAppTests.swift */; };
+		D5B32DF12648FD0600513D37 /* BitSigAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DF02648FD0600513D37 /* BitSigAppUITests.swift */; };
+		D5B32DFF2648FDCE00513D37 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32DFE2648FDCE00513D37 /* MainTabBarController.swift */; };
+		D5B32E01264902EB00513D37 /* SignController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E00264902EB00513D37 /* SignController.swift */; };
+		D5B32E07264903EC00513D37 /* SignaturesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E06264903EC00513D37 /* SignaturesController.swift */; };
+		D5B32E0A2649048100513D37 /* TokensController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E092649048100513D37 /* TokensController.swift */; };
+		D5B32E0D264904B000513D37 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B32E0C264904B000513D37 /* SettingsController.swift */; };
+		D5B32E0F264911AC00513D37 /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = D5B32E0E264911AC00513D37 /* Podfile */; };
+		DF481DFB45457E64A80BEF2A /* Pods_BitSigApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89B5B297078121BB22842D6E /* Pods_BitSigApp.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D5B32DE22648FD0600513D37 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5B32DC32648FCEF00513D37 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5B32DCA2648FCEF00513D37;
+			remoteInfo = BitSigApp;
+		};
+		D5B32DED2648FD0600513D37 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5B32DC32648FCEF00513D37 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5B32DCA2648FCEF00513D37;
+			remoteInfo = BitSigApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1AB004E829A10B4898E61864 /* Pods-BitSigApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BitSigApp.debug.xcconfig"; path = "Target Support Files/Pods-BitSigApp/Pods-BitSigApp.debug.xcconfig"; sourceTree = "<group>"; };
+		89B5B297078121BB22842D6E /* Pods_BitSigApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BitSigApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD7EC60478358E032DE090FF /* Pods-BitSigApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BitSigApp.release.xcconfig"; path = "Target Support Files/Pods-BitSigApp/Pods-BitSigApp.release.xcconfig"; sourceTree = "<group>"; };
+		D5B32DCB2648FCF000513D37 /* BitSigApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BitSigApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5B32DCE2648FCF000513D37 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D5B32DD42648FCFE00513D37 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D5B32DD72648FCFE00513D37 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		D5B32DDA2648FCFE00513D37 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D5B32DDC2648FCFF00513D37 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D5B32DE12648FD0600513D37 /* BitSigAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitSigAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5B32DE52648FD0600513D37 /* BitSigAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitSigAppTests.swift; sourceTree = "<group>"; };
+		D5B32DE72648FD0600513D37 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D5B32DEC2648FD0600513D37 /* BitSigAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitSigAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5B32DF02648FD0600513D37 /* BitSigAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitSigAppUITests.swift; sourceTree = "<group>"; };
+		D5B32DF22648FD0600513D37 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D5B32DFE2648FDCE00513D37 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
+		D5B32E00264902EB00513D37 /* SignController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignController.swift; sourceTree = "<group>"; };
+		D5B32E06264903EC00513D37 /* SignaturesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignaturesController.swift; sourceTree = "<group>"; };
+		D5B32E092649048100513D37 /* TokensController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensController.swift; sourceTree = "<group>"; };
+		D5B32E0C264904B000513D37 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
+		D5B32E0E264911AC00513D37 /* Podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D5B32DC82648FCEF00513D37 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF481DFB45457E64A80BEF2A /* Pods_BitSigApp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5B32DDE2648FD0600513D37 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5B32DE92648FD0600513D37 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		241A6DA6ECB0FA652F2B9E44 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				89B5B297078121BB22842D6E /* Pods_BitSigApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D5B32DC22648FCEF00513D37 = {
+			isa = PBXGroup;
+			children = (
+				D5B32E0E264911AC00513D37 /* Podfile */,
+				D5B32DCD2648FCF000513D37 /* BitSigApp */,
+				D5B32DE42648FD0600513D37 /* BitSigAppTests */,
+				D5B32DEF2648FD0600513D37 /* BitSigAppUITests */,
+				D5B32DCC2648FCF000513D37 /* Products */,
+				F3858B4C6A0C56C92FD82679 /* Pods */,
+				241A6DA6ECB0FA652F2B9E44 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		D5B32DCC2648FCF000513D37 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32DCB2648FCF000513D37 /* BitSigApp.app */,
+				D5B32DE12648FD0600513D37 /* BitSigAppTests.xctest */,
+				D5B32DEC2648FD0600513D37 /* BitSigAppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D5B32DCD2648FCF000513D37 /* BitSigApp */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32E022649030C00513D37 /* Sign */,
+				D5B32E0B264904A300513D37 /* Settings */,
+				D5B32E082649046A00513D37 /* Tokens */,
+				D5B32E05264903E100513D37 /* Signatures */,
+				D5B32DCE2648FCF000513D37 /* AppDelegate.swift */,
+				D5B32DFE2648FDCE00513D37 /* MainTabBarController.swift */,
+				D5B32DD42648FCFE00513D37 /* Assets.xcassets */,
+				D5B32DD92648FCFE00513D37 /* LaunchScreen.storyboard */,
+				D5B32DDC2648FCFF00513D37 /* Info.plist */,
+				D5B32DD62648FCFE00513D37 /* Preview Content */,
+			);
+			path = BitSigApp;
+			sourceTree = "<group>";
+		};
+		D5B32DD62648FCFE00513D37 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32DD72648FCFE00513D37 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		D5B32DE42648FD0600513D37 /* BitSigAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32DE52648FD0600513D37 /* BitSigAppTests.swift */,
+				D5B32DE72648FD0600513D37 /* Info.plist */,
+			);
+			path = BitSigAppTests;
+			sourceTree = "<group>";
+		};
+		D5B32DEF2648FD0600513D37 /* BitSigAppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32DF02648FD0600513D37 /* BitSigAppUITests.swift */,
+				D5B32DF22648FD0600513D37 /* Info.plist */,
+			);
+			path = BitSigAppUITests;
+			sourceTree = "<group>";
+		};
+		D5B32E022649030C00513D37 /* Sign */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32E00264902EB00513D37 /* SignController.swift */,
+			);
+			path = Sign;
+			sourceTree = "<group>";
+		};
+		D5B32E05264903E100513D37 /* Signatures */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32E06264903EC00513D37 /* SignaturesController.swift */,
+			);
+			path = Signatures;
+			sourceTree = "<group>";
+		};
+		D5B32E082649046A00513D37 /* Tokens */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32E092649048100513D37 /* TokensController.swift */,
+			);
+			path = Tokens;
+			sourceTree = "<group>";
+		};
+		D5B32E0B264904A300513D37 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				D5B32E0C264904B000513D37 /* SettingsController.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		F3858B4C6A0C56C92FD82679 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1AB004E829A10B4898E61864 /* Pods-BitSigApp.debug.xcconfig */,
+				BD7EC60478358E032DE090FF /* Pods-BitSigApp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D5B32DCA2648FCEF00513D37 /* BitSigApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D5B32DF52648FD0600513D37 /* Build configuration list for PBXNativeTarget "BitSigApp" */;
+			buildPhases = (
+				F0C316A5E1E3C55D05415115 /* [CP] Check Pods Manifest.lock */,
+				D5B32DC72648FCEF00513D37 /* Sources */,
+				D5B32DC82648FCEF00513D37 /* Frameworks */,
+				D5B32DC92648FCEF00513D37 /* Resources */,
+				77E21149B0D9850E06DE400B /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BitSigApp;
+			productName = BitSigApp;
+			productReference = D5B32DCB2648FCF000513D37 /* BitSigApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D5B32DE02648FD0600513D37 /* BitSigAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D5B32DF82648FD0600513D37 /* Build configuration list for PBXNativeTarget "BitSigAppTests" */;
+			buildPhases = (
+				D5B32DDD2648FD0600513D37 /* Sources */,
+				D5B32DDE2648FD0600513D37 /* Frameworks */,
+				D5B32DDF2648FD0600513D37 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D5B32DE32648FD0600513D37 /* PBXTargetDependency */,
+			);
+			name = BitSigAppTests;
+			productName = BitSigAppTests;
+			productReference = D5B32DE12648FD0600513D37 /* BitSigAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D5B32DEB2648FD0600513D37 /* BitSigAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D5B32DFB2648FD0600513D37 /* Build configuration list for PBXNativeTarget "BitSigAppUITests" */;
+			buildPhases = (
+				D5B32DE82648FD0600513D37 /* Sources */,
+				D5B32DE92648FD0600513D37 /* Frameworks */,
+				D5B32DEA2648FD0600513D37 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D5B32DEE2648FD0600513D37 /* PBXTargetDependency */,
+			);
+			name = BitSigAppUITests;
+			productName = BitSigAppUITests;
+			productReference = D5B32DEC2648FD0600513D37 /* BitSigAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D5B32DC32648FCEF00513D37 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1170;
+				LastUpgradeCheck = 1170;
+				ORGANIZATIONNAME = "Andrei Homentcovschi";
+				TargetAttributes = {
+					D5B32DCA2648FCEF00513D37 = {
+						CreatedOnToolsVersion = 11.7;
+					};
+					D5B32DE02648FD0600513D37 = {
+						CreatedOnToolsVersion = 11.7;
+						TestTargetID = D5B32DCA2648FCEF00513D37;
+					};
+					D5B32DEB2648FD0600513D37 = {
+						CreatedOnToolsVersion = 11.7;
+						TestTargetID = D5B32DCA2648FCEF00513D37;
+					};
+				};
+			};
+			buildConfigurationList = D5B32DC62648FCEF00513D37 /* Build configuration list for PBXProject "BitSigApp" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D5B32DC22648FCEF00513D37;
+			productRefGroup = D5B32DCC2648FCF000513D37 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D5B32DCA2648FCEF00513D37 /* BitSigApp */,
+				D5B32DE02648FD0600513D37 /* BitSigAppTests */,
+				D5B32DEB2648FD0600513D37 /* BitSigAppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D5B32DC92648FCEF00513D37 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5B32DDB2648FCFE00513D37 /* LaunchScreen.storyboard in Resources */,
+				D5B32DD82648FCFE00513D37 /* Preview Assets.xcassets in Resources */,
+				D5B32E0F264911AC00513D37 /* Podfile in Resources */,
+				D5B32DD52648FCFE00513D37 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5B32DDF2648FD0600513D37 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5B32DEA2648FD0600513D37 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		77E21149B0D9850E06DE400B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitSigApp/Pods-BitSigApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitSigApp/Pods-BitSigApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BitSigApp/Pods-BitSigApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F0C316A5E1E3C55D05415115 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BitSigApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D5B32DC72648FCEF00513D37 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5B32E0D264904B000513D37 /* SettingsController.swift in Sources */,
+				D5B32E07264903EC00513D37 /* SignaturesController.swift in Sources */,
+				D5B32E0A2649048100513D37 /* TokensController.swift in Sources */,
+				D5B32DFF2648FDCE00513D37 /* MainTabBarController.swift in Sources */,
+				D5B32E01264902EB00513D37 /* SignController.swift in Sources */,
+				D5B32DCF2648FCF000513D37 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5B32DDD2648FD0600513D37 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5B32DE62648FD0600513D37 /* BitSigAppTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5B32DE82648FD0600513D37 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5B32DF12648FD0600513D37 /* BitSigAppUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D5B32DE32648FD0600513D37 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5B32DCA2648FCEF00513D37 /* BitSigApp */;
+			targetProxy = D5B32DE22648FD0600513D37 /* PBXContainerItemProxy */;
+		};
+		D5B32DEE2648FD0600513D37 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5B32DCA2648FCEF00513D37 /* BitSigApp */;
+			targetProxy = D5B32DED2648FD0600513D37 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		D5B32DD92648FCFE00513D37 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D5B32DDA2648FCFE00513D37 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D5B32DF32648FD0600513D37 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.7;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D5B32DF42648FD0600513D37 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D5B32DF62648FD0600513D37 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1AB004E829A10B4898E61864 /* Pods-BitSigApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"BitSigApp/Preview Content\"";
+				DEVELOPMENT_TEAM = PVFH9G54XH;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = BitSigApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.BitSig.BitSigApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D5B32DF72648FD0600513D37 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7EC60478358E032DE090FF /* Pods-BitSigApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"BitSigApp/Preview Content\"";
+				DEVELOPMENT_TEAM = PVFH9G54XH;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = BitSigApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.BitSig.BitSigApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D5B32DF92648FD0600513D37 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PVFH9G54XH;
+				INFOPLIST_FILE = BitSigAppTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.7;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.BitSig.BitSigAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BitSigApp.app/BitSigApp";
+			};
+			name = Debug;
+		};
+		D5B32DFA2648FD0600513D37 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PVFH9G54XH;
+				INFOPLIST_FILE = BitSigAppTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.7;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.BitSig.BitSigAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BitSigApp.app/BitSigApp";
+			};
+			name = Release;
+		};
+		D5B32DFC2648FD0600513D37 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PVFH9G54XH;
+				INFOPLIST_FILE = BitSigAppUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.BitSig.BitSigAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BitSigApp;
+			};
+			name = Debug;
+		};
+		D5B32DFD2648FD0600513D37 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PVFH9G54XH;
+				INFOPLIST_FILE = BitSigAppUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.BitSig.BitSigAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BitSigApp;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D5B32DC62648FCEF00513D37 /* Build configuration list for PBXProject "BitSigApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5B32DF32648FD0600513D37 /* Debug */,
+				D5B32DF42648FD0600513D37 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D5B32DF52648FD0600513D37 /* Build configuration list for PBXNativeTarget "BitSigApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5B32DF62648FD0600513D37 /* Debug */,
+				D5B32DF72648FD0600513D37 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D5B32DF82648FD0600513D37 /* Build configuration list for PBXNativeTarget "BitSigAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5B32DF92648FD0600513D37 /* Debug */,
+				D5B32DFA2648FD0600513D37 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D5B32DFB2648FD0600513D37 /* Build configuration list for PBXNativeTarget "BitSigAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5B32DFC2648FD0600513D37 /* Debug */,
+				D5B32DFD2648FD0600513D37 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D5B32DC32648FCEF00513D37 /* Project object */;
+}
