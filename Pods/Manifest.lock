@@ -115,7 +115,9 @@ PODS:
   - GoogleUtilities/UserDefaults (7.4.0):
     - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (1.5.0)
+  - Kingfisher (6.3.0)
   - leveldb-library (1.22.1)
+  - lottie-ios (3.2.2)
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
@@ -148,6 +150,8 @@ DEPENDENCIES:
   - Firebase/Database
   - Firebase/Messaging
   - Firebase/Storage
+  - Kingfisher (~> 6.0)
+  - lottie-ios
   - SAConfettiView
   - web3swift
 
@@ -169,7 +173,9 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - GTMSessionFetcher
+    - Kingfisher
     - leveldb-library
+    - lottie-ios
     - nanopb
     - PromiseKit
     - PromisesObjC
@@ -195,7 +201,9 @@ SPEC CHECKSUMS:
   GoogleDataTransport: cd9db2180fcecd8da1b561aea31e3e56cf834aa7
   GoogleUtilities: 284cddc7fffc14ae1907efb6f78ab95c1fccaedc
   GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
+  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
+  lottie-ios: a033bb989eea77d9f99cc4e2bbdd3788229761ad
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
@@ -204,6 +212,6 @@ SPEC CHECKSUMS:
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   web3swift: 0f097eafe1d08f478694b882581b85a01afb6633
 
-PODFILE CHECKSUM: ad9097f4e3cd9e311cfdd5c781d83dfa89d6bd80
+PODFILE CHECKSUM: 19610f569d70509e177ec31f854d1ca28f078342
 
 COCOAPODS: 1.10.1

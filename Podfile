@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+# platform :ios, '13.6'
 
 # add pods for desired Firebase products
 # https://firebase.google.com/docs/ios/setup#available-pods
@@ -18,4 +18,6 @@ target 'BitSigApp' do
   pod 'Firebase/Core'
   pod 'Firebase/Messaging'
   pod 'SAConfettiView'
+  pod 'Kingfisher', '~> 6.0'
+  pod 'lottie-ios'
 end

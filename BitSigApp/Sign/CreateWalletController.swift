@@ -24,6 +24,7 @@ class CreateWalletController: UIViewController {
     var mnemonics = ""
     var equal_mnemonics = ""
     var QRCodeValue = ""
+    var isLogin = false
     
     var delegate: CreateWalletControllerDelegate?
     
@@ -37,7 +38,7 @@ class CreateWalletController: UIViewController {
         label.numberOfLines = 0
         label.textAlignment = .center
         let attributedText = NSMutableAttributedString(string: "Woooo!\n\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 25)])
-        attributedText.append(NSMutableAttributedString(string: "You're almost done!\nJust create a wallet to finish.\n\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 20)]))
+        attributedText.append(NSMutableAttributedString(string: "You're almost in!\nJust create a wallet to finish.\n\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 20)]))
         label.attributedText = attributedText
         return label
     }()
@@ -136,9 +137,9 @@ class CreateWalletController: UIViewController {
         return button
     }()
     
-    private let restoreWalletButton: UIButton = {
+    private lazy var restoreWalletButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Recover Wallet", for: .normal)
+        button.setTitle("Login to Wallet", for: .normal)
         button.backgroundColor = UIColor.clear
         button.setTitleColor(UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1), for: .normal)
         button.layer.cornerRadius = 15
@@ -192,7 +193,7 @@ class CreateWalletController: UIViewController {
     
     private let submitRestoreButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Restore Wallet", for: .normal)
+        button.setTitle("Login", for: .normal)
         button.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1)
         button.layer.cornerRadius = 15
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
@@ -223,13 +224,6 @@ class CreateWalletController: UIViewController {
             overrideUserInterfaceStyle = .light
         }
         
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationController?.navigationBar.backgroundColor = UIColor.init(white: 0.98, alpha: 1)
-        self.navigationController?.navigationBar.barTintColor = UIColor.init(white: 0.98, alpha: 1)
-        self.view.backgroundColor = UIColor.init(white: 0.98, alpha: 1)
-        
         confettiView.frame = self.view.bounds
         self.view.addSubview(confettiView)
         confettiView.intensity = 0.75
@@ -237,6 +231,13 @@ class CreateWalletController: UIViewController {
         Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false) { timer in
             self.confettiView.stopConfetti()
         }
+        
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationController?.navigationBar.backgroundColor = UIColor.init(white: 1, alpha: 1)
+        self.navigationController?.navigationBar.barTintColor = UIColor.init(white: 1, alpha: 1)
+        self.view.backgroundColor = UIColor.init(white: 1, alpha: 1)
         
         walletExplanationLabel.frame = CGRect(x: 20, y: 30, width: UIScreen.main.bounds.width - 40, height: 170)
         self.view.insertSubview(walletExplanationLabel, at: 4)
@@ -252,10 +253,10 @@ class CreateWalletController: UIViewController {
         stackView.axis = .vertical
         stackView.spacing = 10
         
-        view.addSubview(stackView)
+        self.view.insertSubview(stackView, at: 4)
         stackView.anchor(top: walletExplanationLabel.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 10, paddingLeft: 40, paddingRight: 40, height: 214)
         
-        view.addSubview(restoreWalletButton)
+        self.view.insertSubview(restoreWalletButton, at: 4)
         restoreWalletButton.anchor(top: stackView.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 15, paddingLeft: 40, paddingRight: 40, height: 30)
         
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -266,7 +267,10 @@ class CreateWalletController: UIViewController {
         
         mnemonicsLabel.frame = CGRect(x: 20, y: UIScreen.main.bounds.height/2 - 100, width: UIScreen.main.bounds.width - 40, height: 200)
         self.view.insertSubview(mnemonicsLabel, at: 10)
-    
+        
+        if isLogin {
+            self.hasRestore()
+        }
     }
     
     @objc private func handleTextInputChange() {
@@ -314,8 +318,14 @@ class CreateWalletController: UIViewController {
         submitButton.isEnabled = false
         submitButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 0.7)
         
+        let password_service = "passService"
+        let mnemonics_service = "mnemonicsService"
+        let account = "myAccount"
+        
         Auth.auth().createUser(withEmail: email, password: password) { (err) in
             self.createWallet(password: password)
+            KeychainService.savePassword(service: password_service, account: account, data: password)
+            KeychainService.savePassword(service: mnemonics_service, account: account, data: self.mnemonics)
         }
     }
     
@@ -414,6 +424,10 @@ class CreateWalletController: UIViewController {
     }
     
     @objc func hasRestore() {
+        let attributedText = NSMutableAttributedString(string: "Woooo!\n\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 25)])
+        attributedText.append(NSMutableAttributedString(string: "You're almost in!\nJust login to your wallet to finish.\n\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 20)]))
+        walletExplanationLabel.attributedText = attributedText
+        
         let restoreStackView = UIStackView(arrangedSubviews: [restoreEmailTextField, restorePasswordTextField, recoveryPhraseTextField, submitRestoreButton])
         restoreStackView.distribution = .fillEqually
         restoreStackView.axis = .vertical
@@ -437,8 +451,8 @@ class CreateWalletController: UIViewController {
             self.passwordTextField.alpha = 0
             self.passwordMatchTextField.alpha = 0
             self.submitButton.alpha = 0
-            self.walletExplanationLabel.alpha = 0
-            self.walletExplanationTwoLabel.alpha = 0
+//            self.walletExplanationLabel.alpha = 0
+//            self.walletExplanationTwoLabel.alpha = 0
             self.restoreWalletButton.alpha = 0
         }
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
@@ -446,8 +460,8 @@ class CreateWalletController: UIViewController {
             self.passwordTextField.isHidden = true
             self.passwordMatchTextField.isHidden = true
             self.submitButton.isHidden = true
-            self.walletExplanationLabel.isHidden = true
-            self.walletExplanationTwoLabel.isHidden = true
+//            self.walletExplanationLabel.isHidden = true
+//            self.walletExplanationTwoLabel.isHidden = true
             self.restoreWalletButton.isHidden = true
             
             UIView.animate(withDuration: 0.5) {
@@ -462,6 +476,11 @@ class CreateWalletController: UIViewController {
     @objc func handleRestore() {
         guard let email = self.restoreEmailTextField.text else { return }
         guard let password = self.restorePasswordTextField.text else { return }
+        guard let mnemonics = self.recoveryPhraseTextField.text else { return }
+        
+        let password_service = "passService"
+        let mnemonics_service = "mnemonicsService"
+        let account = "myAccount"
         
         submitRestoreButton.isEnabled = false
         submitRestoreButton.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 0.7)
@@ -471,6 +490,11 @@ class CreateWalletController: UIViewController {
                 self.resetRestoreInputFields()
                 return
             }
+            if let passedInvite = try? JSONEncoder().encode(true) {
+                UserDefaults.standard.set(passedInvite, forKey: "passedInvite")
+            }
+            KeychainService.savePassword(service: password_service, account: account, data: password)
+            KeychainService.savePassword(service: mnemonics_service, account: account, data: mnemonics)
             self.restoreWallet()
         })
         

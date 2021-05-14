@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 
+// https://github.com/bcylin/QuickTableViewController
+
 class SettingsController: UIViewController {
     
 }
