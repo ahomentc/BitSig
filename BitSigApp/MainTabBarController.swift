@@ -17,6 +17,18 @@ class MainTabBarController: UITabBarController {
         tabBar.tintColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1)
         tabBar.isTranslucent = false
         
+//        let firebaseAuth = Auth.auth()
+//        do {
+//          try firebaseAuth.signOut()
+//        } catch let signOutError as NSError {
+//          print ("Error signing out: %@", signOutError)
+//        }
+//        let secItemClasses = [kSecClassGenericPassword, kSecClassInternetPassword, kSecClassCertificate, kSecClassKey, kSecClassIdentity]
+//        for itemClass in secItemClasses {
+//            let spec: NSDictionary = [kSecClass: itemClass]
+//            SecItemDelete(spec)
+//        }
+        
         if let passedInviteRetrieved = UserDefaults.standard.object(forKey: "passedInvite") as? Data {
             guard let passedInvite = try? JSONDecoder().decode(Bool.self, from: passedInviteRetrieved) else {
                 return

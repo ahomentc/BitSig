@@ -13,13 +13,14 @@ import FirebaseDatabase
 import FirebaseMessaging
 
 extension Auth {
-    func createUser(withEmail email: String, password: String, completion: @escaping (Error?) -> ()) {
+    func createUserInDatabase(withEmail email: String, password: String, completion: @escaping (Error?) -> ()) {
         Auth.auth().createUser(withEmail: email, password: password, completion: { (user, err) in
             if let err = err {
                 print("Failed to create user:", err)
                 completion(err)
                 return
             }
+            completion(nil)
         })
     }
 }
@@ -46,8 +47,7 @@ extension Database {
                 print("Failed to upload user to database:", err)
                 return
             }
-            let eth_values = [eth_address: uid]
-            Database.database().reference().child("eth_addresses").updateChildValues(eth_values, withCompletionBlock: { (err, ref) in
+            Database.database().reference().child("eth_addresses").child(eth_address).setValue(uid, withCompletionBlock: { (err, ref) in
                 if let err = err {
                     print("Failed to upload eth address to database:", err)
                     return
@@ -65,20 +65,65 @@ extension Database {
         })
     }
     
-    // take into account contract address?
-    func signToken(eth_address: String, token_id: String, completion: @escaping (() -> ())) {
-        Database.database().reference().child("eth_addresses").child(eth_address).child("tokens_signed").child(token_id).setValue("1", withCompletionBlock: { (err, ref) in
+    func createTwitterUser(withUID uid: String, username: String? = nil, profile_image_url: String? = nil, followers_count: Int? = nil, verified: Int? = nil, id: String? = nil, completion: @escaping (() -> ())) {
+        var dictionaryValues = ["bitsig_uid": uid]
+        if profile_image_url != nil {
+            dictionaryValues["profile_image_url"] = profile_image_url
+        }
+        if followers_count != nil {
+            dictionaryValues["followers_count"] = String(followers_count!)
+        }
+        if verified != nil {
+            dictionaryValues["verified"] = String(verified!)
+        }
+        if id != nil {
+            dictionaryValues["twitter_id"] = id
+        }
+        
+        let values = [username: dictionaryValues]
+        Database.database().reference().child("twitter_users").updateChildValues(values, withCompletionBlock: { (err, ref) in
             if let err = err {
-                print("Failed to sign token in database:", err)
+                print("Failed to upload user to database:", err)
                 return
             }
             completion()
         })
     }
+
+    // take into account contract address?
+    func signToken(eth_address: String, token_id: String, completion: @escaping (() -> ())) {
+        // get their place in line and set that as the value, cloud function for that
+        
+        Database.database().reference().child("eth_addresses").child(eth_address).child("tokens_signed").child(token_id).setValue(1, withCompletionBlock: { (err, ref) in
+            if let err = err {
+                print("Failed to sign token in database:", err)
+                return
+            }
+            Database.database().reference().child("tokens").child(token_id).child("signer_addresses").child(eth_address).setValue(1, withCompletionBlock: { (err, ref) in
+                if let err = err {
+                    print("Failed to sign token in database:", err)
+                    return
+                }
+                completion()
+            })
+        })
+    }
+    
+    func hasSignedToken(eth_address: String, token_id: String, completion: @escaping (Bool) -> ()) {
+        Database.database().reference().child("tokens").child(token_id).child("signer_addresses").child(eth_address).observeSingleEvent(of: .value, with: { (snapshot) in
+            guard (snapshot.value as? Int) != nil else {
+                completion(false)
+                return
+            }
+            completion(true)
+        }) { (err) in
+            print("Failed to fetch user from database:", err)
+        }
+    }
     
     func userExists(withUID uid: String, completion: @escaping (Bool) -> ()) {
-        Database.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
-            guard (snapshot.value as? [String: Any]) != nil else {
+        Database.database().reference().child("users").child(uid).child("eth_address").observeSingleEvent(of: .value, with: { (snapshot) in
+            guard (snapshot.value as? String) != nil else {
                 completion(false)
                 return
             }

@@ -20,7 +20,7 @@ import Kingfisher
 // won't connect to bank or anything but will give address so they can deposit crypto. tell them how much
 // to deposit based on estimate
 
-class SignController: UIViewController {
+class SignController: UIViewController, AddNameControllerDelegate {
 
     let scrollView = UIScrollView()
     let toScrollView = UIView()
@@ -77,6 +77,20 @@ class SignController: UIViewController {
         button.addTarget(self, action: #selector(signToken), for: .touchUpInside)
         return button
     }()
+    
+    private lazy var signedButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Signed!", for: .normal)
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 15
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.layer.borderWidth = 0
+        button.setTitleColor(UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1), for: .normal)
+        button.isHidden = true
+        button.isEnabled = false
+//        button.addTarget(self, action: #selector(signToken), for: .touchUpInside)
+        return button
+    }()
     // advanced sign button underneath this
     
     private lazy var viewSignersButton: UIButton = {
@@ -114,6 +128,11 @@ class SignController: UIViewController {
         
         signButton.frame = CGRect(x: 40, y: UIScreen.main.bounds.height - 180, width: UIScreen.main.bounds.width - 80, height: 50)
         self.view.insertSubview(signButton, at: 4)
+        
+        signedButton.frame = CGRect(x: 40, y: UIScreen.main.bounds.height - 180, width: UIScreen.main.bounds.width - 80, height: 50)
+        self.view.insertSubview(signedButton, at: 4)
+        
+        self.removeSignedButtonIfSigned()
         
         //Add and setup scroll view
         self.view.addSubview(self.scrollView)
@@ -216,6 +235,48 @@ class SignController: UIViewController {
         self.present(successfulSignController, animated: false, completion: nil)
     }
     
+    @objc func removeSignedButtonIfSigned() {
+        let password_service = "passService"
+        let mnemonics_service = "mnemonicsService"
+        let account = "myAccount"
+        if let password = KeychainService.loadPassword(service: password_service, account: account) {
+            if let mnemonics = KeychainService.loadPassword(service: mnemonics_service, account: account) {
+                // get wallet
+                let keystore = try! BIP32Keystore(
+                    mnemonics: mnemonics,
+                    password: password,
+                    mnemonicsPassword: "",
+                    language: .english)!
+                let name = "New HD Wallet"
+                let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
+                let address = keystore.addresses!.first!.address
+                let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
+                Database.database().hasSignedToken(eth_address: wallet.address, token_id: "1", completion: { (is_signed) in
+                    if is_signed {
+                        self.signButton.isHidden = true
+                        self.signedButton.isHidden = false
+                    }
+                })
+            }
+            else {
+                let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
+                self.present(alert, animated: true, completion: nil)
+                let when = DispatchTime.now() + 1
+                DispatchQueue.main.asyncAfter(deadline: when){
+                    alert.dismiss(animated: true, completion: nil)
+                }
+            }
+        }
+        else {
+            let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
+            self.present(alert, animated: true, completion: nil)
+            let when = DispatchTime.now() + 1
+            DispatchQueue.main.asyncAfter(deadline: when){
+                alert.dismiss(animated: true, completion: nil)
+            }
+        }
+    }
+        
     @objc func signToken() {
         // signing token if no User in database with uid brings up a page
         // for them to optionally enter their name and connect their twitter
@@ -237,10 +298,16 @@ class SignController: UIViewController {
                         let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
                         let address = keystore.addresses!.first!.address
                         let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-
-                        Database.database().signToken(eth_address: wallet.address, token_id: "1") {
-                            self.goToSuccessfulSignController()
-                        }
+                        Database.database().hasSignedToken(eth_address: wallet.address, token_id: "1", completion: { (is_signed) in
+                            if is_signed {
+                                self.goToSuccessfulSignController()
+                            }
+                            else {
+                                Database.database().signToken(eth_address: wallet.address, token_id: "1") {
+                                    self.goToSuccessfulSignController()
+                                }
+                            }
+                        })
                     }
                     else {
                         let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
@@ -263,81 +330,14 @@ class SignController: UIViewController {
             else {
                 guard let QRCodeValue = self.QRCodeValue else { return }
                 if QRCodeValue == "https://apps.apple.com/in/app/bitsig/id1566975289" {
-                    let contract_address = ""
                     let token_id = "1"
                     let addNameController = AddNameController()
                     addNameController.modalPresentationStyle = .fullScreen
                     addNameController.token_id = token_id
+                    addNameController.delegate = self
                     self.present(addNameController, animated: true, completion: nil)
                 }
             }
         })
-        
-        guard let QRCodeValue = QRCodeValue else { return }
-        if QRCodeValue == "https://apps.apple.com/in/app/bitsig/id1566975289" {
-            let contract_address = ""
-            let token_id = "1"
-            
-            
-            // Don't need all of this yet. In the future will send over the address, public key,
-            // and a private key encrypted message holding the token id
-//            let password_service = "passService"
-//            let mnemonics_service = "mnemonicsService"
-//            let account = "myAccount"
-//            if let password = KeychainService.loadPassword(service: password_service, account: account) {
-//                if let mnemonics = KeychainService.loadPassword(service: mnemonics_service, account: account) {
-//                    // get wallet
-//                    let keystore = try! BIP32Keystore(
-//                        mnemonics: mnemonics,
-//                        password: password,
-//                        mnemonicsPassword: "",
-//                        language: .english)!
-//                    let name = "New HD Wallet"
-//                    let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-//                    let address = keystore.addresses!.first!.address
-//                    let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-//
-//                    // get KeyStore Manager
-//                    let data = wallet.data
-//                    let keystoreManager: KeystoreManager
-//                    if wallet.isHD {
-//                        let keystore = BIP32Keystore(data)!
-//                        keystoreManager = KeystoreManager([keystore])
-//                    } else {
-//                        let keystore = EthereumKeystoreV3(data)!
-//                        keystoreManager = KeystoreManager([keystore])
-//                    }
-//
-//                    // get private key
-//                    let ethereumAddress = EthereumAddress(wallet.address)!
-//                    let privateKey = try! keystoreManager.UNSAFE_getPrivateKeyData(password: password, account: ethereumAddress).toHexString()
-//                    do {
-//                        guard let signature = try Web3Signer.signPersonalMessage("personalMessage".data(using: .utf8)!, keystore: keystoreManager, account: ethereumAddress, password: password) else {return}
-//                        print(signature.toHexString())
-//
-//                    }
-//                    catch{
-//                        print(error)
-//                        return
-//                    }
-//                }
-//                else {
-//                    let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-//                    self.present(alert, animated: true, completion: nil)
-//                    let when = DispatchTime.now() + 1
-//                    DispatchQueue.main.asyncAfter(deadline: when){
-//                        alert.dismiss(animated: true, completion: nil)
-//                    }
-//                }
-//            }
-//            else {
-//                let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-//                self.present(alert, animated: true, completion: nil)
-//                let when = DispatchTime.now() + 1
-//                DispatchQueue.main.asyncAfter(deadline: when){
-//                    alert.dismiss(animated: true, completion: nil)
-//                }
-//            }
-        }
     }
 }

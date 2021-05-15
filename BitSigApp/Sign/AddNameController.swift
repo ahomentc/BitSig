@@ -12,12 +12,21 @@ import web3swift
 import Firebase
 import FirebaseAuth
 import FirebaseDatabase
+import SwiftyJSON
 
 // need option to import account too
+
+protocol AddNameControllerDelegate{
+    func goToSuccessfulSignController()
+}
+
 
 class AddNameController: UIViewController {
     
     var token_id = "1"
+    var delegate: AddNameControllerDelegate?
+    
+    var twitter_username = ""
     
     private lazy var addNameExplanationLabel: UILabel = {
         let label = UILabel()
@@ -44,7 +53,7 @@ class AddNameController: UIViewController {
         return tf
     }()
     
-    private let connectTwitterButton: UIButton = {
+    private lazy var connectTwitterButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Connect Twitter", for: .normal)
         button.backgroundColor = .clear
@@ -53,7 +62,7 @@ class AddNameController: UIViewController {
         button.layer.borderColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1).cgColor
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.setTitleColor(UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1), for: .normal)
-//        button.addTarget(self, action: #selector(handleSignUp), for: .touchUpInside)
+        button.addTarget(self, action: #selector(connectTwitter), for: .touchUpInside)
         return button
     }()
     
@@ -108,6 +117,50 @@ class AddNameController: UIViewController {
 //        view.addGestureRecognizer(tap)
     }
     
+    var provider = OAuthProvider(providerID: "twitter.com")
+    @objc func connectTwitter() {
+        guard let user = Auth.auth().currentUser else { return }
+//        Auth.auth().currentUser?.unlink(fromProvider: "twitter.com") { (user, error) in
+//          // ...
+//        }
+            
+        print("connecting twitter")
+        provider.getCredentialWith(nil) { credential, error in
+            if error != nil {
+            }
+            if credential != nil {
+                user.link(with: credential!) { (authResult, error) in
+                    if error != nil {
+                    // Handle error.
+                    }
+                    // Twitter credential is linked to the current user.
+                    // IdP data available in authResult.additionalUserInfo.profile.
+                    // Twitter OAuth access token can also be retrieved by:
+                    // authResult.credential.accessToken
+                    // Twitter OAuth ID token can be retrieved by calling:
+                    // authResult.credential.idToken
+                    // Twitter OAuth secret can be retrieved by calling:
+                    // authResult.credential.secret
+                    
+                    let twitter_info = authResult?.additionalUserInfo?.profile as! Dictionary<String, NSObject>
+                    let username = twitter_info["screen_name"] as! String
+                    let profile_image_url = twitter_info["profile_image_url"] as! String
+                    let verified = twitter_info["verified"] as! Int
+                    let followers_count = twitter_info["followers_count"] as! NSNumber
+                    let id_str = twitter_info["id_str"] as! String
+                    
+                    self.twitter_username = username
+                    
+                    self.connectTwitterButton.setTitle("Connected to: " + self.twitter_username, for: .normal)
+                    self.connectTwitterButton.layer.borderWidth = 0
+                    self.connectTwitterButton.isEnabled = true
+                    
+                    Database.database().createTwitterUser(withUID: user.uid, username: username, profile_image_url: profile_image_url, followers_count: followers_count.intValue, verified: verified, id: id_str) {}
+                }
+            }
+        }
+    }
+    
     @objc func finish() {
         // create user account, regardless of having name or not
         // options of it:
@@ -123,6 +176,7 @@ class AddNameController: UIViewController {
         if let password = KeychainService.loadPassword(service: password_service, account: account) {
             if let mnemonics = KeychainService.loadPassword(service: mnemonics_service, account: account) {
                 // get wallet
+                print(password)
                 let keystore = try! BIP32Keystore(
                     mnemonics: mnemonics,
                     password: password,
@@ -133,11 +187,11 @@ class AddNameController: UIViewController {
                 let address = keystore.addresses!.first!.address
                 let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
 
-                Database.database().uploadUser(withUID: currentLoggedInUserId, eth_address: wallet.address, name: nameTextField.text ?? "", token_id: token_id) {
-                    let successfulSignController = SuccessfulSignController()
-                    self.navigationController?.pushViewController(successfulSignController, animated: true)
+                Database.database().uploadUser(withUID: currentLoggedInUserId, eth_address: wallet.address, name: nameTextField.text ?? "", twitter_username: twitter_username, token_id: token_id) {
+                    self.dismiss(animated: true, completion: {
+                        self.delegate?.goToSuccessfulSignController()
+                    })
                 }
-                
             }
             else {
                 let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)

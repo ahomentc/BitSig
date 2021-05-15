@@ -136,6 +136,7 @@ PODS:
   - SAConfettiView (0.1.8)
   - secp256k1.c (0.1.2)
   - Starscream (3.1.1)
+  - SwiftyJSON (5.0.1)
   - web3swift (2.3.0):
     - BigInt (~> 4.0)
     - CryptoSwift (~> 1.0.0)
@@ -153,6 +154,7 @@ DEPENDENCIES:
   - Kingfisher (~> 6.0)
   - lottie-ios
   - SAConfettiView
+  - SwiftyJSON
   - web3swift
 
 SPEC REPOS:
@@ -182,6 +184,7 @@ SPEC REPOS:
     - SAConfettiView
     - secp256k1.c
     - Starscream
+    - SwiftyJSON
     - web3swift
 
 SPEC CHECKSUMS:
@@ -210,8 +213,9 @@ SPEC CHECKSUMS:
   SAConfettiView: c87031a2280659261b730fce3669fb10e73636ee
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
+  SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   web3swift: 0f097eafe1d08f478694b882581b85a01afb6633
 
-PODFILE CHECKSUM: 19610f569d70509e177ec31f854d1ca28f078342
+PODFILE CHECKSUM: ace4d542b9edcd9353fbd40bf012e6c6b52e9dee
 
 COCOAPODS: 1.10.1

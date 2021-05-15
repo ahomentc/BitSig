@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import web3swift
+import Firebase
 import FirebaseAuth
 import SAConfettiView
 
@@ -322,15 +323,23 @@ class CreateWalletController: UIViewController {
         let mnemonics_service = "mnemonicsService"
         let account = "myAccount"
         
-        Auth.auth().createUser(withEmail: email, password: password) { (err) in
-            self.createWallet(password: password)
+        // this doesn't create the user so it doesn't work after
+        Auth.auth().createUserInDatabase(withEmail: email, password: password) { (err) in
+            if let hasWallet = try? JSONEncoder().encode(true) {
+                UserDefaults.standard.set(hasWallet, forKey: "hasWallet")
+            }
+            let bitsOfEntropy: Int = 128 // Entropy is a measure of password strength. Usually used 128 or 256 bits.
+            let mnemonics = try! BIP39.generateMnemonics(bitsOfEntropy: bitsOfEntropy)!
+            self.mnemonics = mnemonics
+            
             KeychainService.savePassword(service: password_service, account: account, data: password)
             KeychainService.savePassword(service: mnemonics_service, account: account, data: self.mnemonics)
+            
+            self.displayMnemonics(mnemonics: mnemonics)
         }
     }
     
-    func createWallet(password: String) {
-        // make everything disappear
+    func displayMnemonics(mnemonics: String) {
         UIView.animate(withDuration: 0.5) {
             self.emailTextField.alpha = 0
             self.passwordTextField.alpha = 0
@@ -348,50 +357,8 @@ class CreateWalletController: UIViewController {
             self.walletExplanationLabel.isHidden = true
             self.walletExplanationTwoLabel.isHidden = true
             self.restoreWalletButton.isHidden = true
-            
-            let bitsOfEntropy: Int = 128 // Entropy is a measure of password strength. Usually used 128 or 256 bits.
-            let mnemonics = try! BIP39.generateMnemonics(bitsOfEntropy: bitsOfEntropy)!
-            self.mnemonics = mnemonics
-            self.displayMnemonics(mnemonics: mnemonics)
-            let keystore = try! BIP32Keystore(
-                mnemonics: mnemonics,
-                password: password,
-                mnemonicsPassword: "",
-                language: .english)!
-            let name = "New HD Wallet"
-            let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-            let address = keystore.addresses!.first!.address
-            let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-            
-            if let hasWallet = try? JSONEncoder().encode(true) {
-                UserDefaults.standard.set(hasWallet, forKey: "hasWallet")
-            }
-        }
-    }
-    
-    func restoreWallet() {
-        guard let password = self.restorePasswordTextField.text else { return }
-        guard let mnemonics = self.recoveryPhraseTextField.text else { return }
-        
-        // add verification to make sure mnemonics are formatted right
-        let keystore = try! BIP32Keystore(
-            mnemonics: mnemonics,
-            password: password,
-            mnemonicsPassword: "",
-            language: .english)!
-        let name = "New HD Wallet"
-        let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-        let address = keystore.addresses!.first!.address
-        let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-        
-        if let hasWallet = try? JSONEncoder().encode(true) {
-            UserDefaults.standard.set(hasWallet, forKey: "hasWallet")
         }
         
-        self.closeWalletCreation()
-    }
-    
-    func displayMnemonics(mnemonics: String) {
         var components = mnemonics.components(separatedBy: " ")
 
         components.insert("\n", at: 3)
@@ -409,7 +376,7 @@ class CreateWalletController: UIViewController {
         self.mnemonicsLabel.alpha = 0
         self.recoveryLabel.alpha = 0
         self.finishWallet.alpha = 0
-        UIView.animate(withDuration: 0.5) {
+        UIView.animate(withDuration: 0.5, delay: 0.5) {
             self.mnemonicsLabel.alpha = 1
             self.recoveryLabel.alpha = 1
             self.finishWallet.alpha = 1
@@ -495,7 +462,12 @@ class CreateWalletController: UIViewController {
             }
             KeychainService.savePassword(service: password_service, account: account, data: password)
             KeychainService.savePassword(service: mnemonics_service, account: account, data: mnemonics)
-            self.restoreWallet()
+            
+            if let hasWallet = try? JSONEncoder().encode(true) {
+                UserDefaults.standard.set(hasWallet, forKey: "hasWallet")
+            }
+            
+            self.closeWalletCreation()
         })
         
     }

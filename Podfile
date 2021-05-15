@@ -20,4 +20,5 @@ target 'BitSigApp' do
   pod 'SAConfettiView'
   pod 'Kingfisher', '~> 6.0'
   pod 'lottie-ios'
+  pod 'SwiftyJSON'
 end
