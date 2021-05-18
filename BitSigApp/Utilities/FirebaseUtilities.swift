@@ -11,6 +11,7 @@ import Firebase
 import FirebaseAuth
 import FirebaseDatabase
 import FirebaseMessaging
+import FirebaseStorage
 
 extension Auth {
     func createUserInDatabase(withEmail email: String, password: String, completion: @escaping (Error?) -> ()) {
@@ -25,44 +26,90 @@ extension Auth {
     }
 }
 
-extension Database {
-    func uploadUser(withUID uid: String, eth_address: String, name: String? = nil, twitter_username: String? = nil, token_id: String? = nil, profileImageUrl: String? = nil, completion: @escaping (() -> ())) {
-        var dictionaryValues = ["eth_address": eth_address]
-        if name != nil {
-            dictionaryValues["name"] = name
-        }
-        if twitter_username != nil {
-            dictionaryValues["twitter_username"] = twitter_username
-        }
-        if profileImageUrl != nil {
-            dictionaryValues["profileImageUrl"] = profileImageUrl
-        }
-        if let fcm = Messaging.messaging().fcmToken {
-            dictionaryValues["fcm_token"] = fcm
-        }
+extension Storage {
+    
+    fileprivate func uploadUserProfileImage(image: UIImage, completion: @escaping (String) -> ()) {
+        guard let uploadData = image.jpegData(compressionQuality: 0.5) else { return } //changed from 0.3
         
-        let values = [uid: dictionaryValues]
-        Database.database().reference().child("users").updateChildValues(values, withCompletionBlock: { (err, ref) in
+        let storageRef = Storage.storage().reference().child("profile_images").child(NSUUID().uuidString)
+        
+        storageRef.putData(uploadData, metadata: nil, completion: { (_, err) in
             if let err = err {
-                print("Failed to upload user to database:", err)
+                print("Failed to upload profile image:", err)
                 return
             }
-            Database.database().reference().child("eth_addresses").child(eth_address).setValue(uid, withCompletionBlock: { (err, ref) in
+            
+            storageRef.downloadURL(completion: { (downloadURL, err) in
                 if let err = err {
-                    print("Failed to upload eth address to database:", err)
+                    print("Failed to obtain download url for profile image:", err)
                     return
                 }
-                
-                if token_id != nil {
-                    self.signToken(eth_address: eth_address, token_id: token_id!) {
-                        completion()
-                    }
-                }
-                else {
-                    completion()
-                }
+                guard let profileImageUrl = downloadURL?.absoluteString else { return }
+                completion(profileImageUrl)
             })
         })
+    }
+}
+
+extension Database {
+    func uploadUser(withUID uid: String, eth_address: String, name: String? = nil, twitter_username: String? = nil, followers_count: Int? = nil, token_id: String? = nil, profileImage: UIImage? = nil, completion: @escaping (() -> ())) {
+        
+        let sync = DispatchGroup()
+        sync.enter()
+        var profileImageUrl = ""
+        if profileImage == nil {
+            sync.leave()
+        }
+        else {
+            Storage.storage().uploadUserProfileImage(image: profileImage!, completion: { (userProfileImageUrl) in
+                profileImageUrl = userProfileImageUrl
+                sync.leave()
+            })
+        }
+        
+        sync.notify(queue: .main) {
+            var dictionaryValues = ["eth_address": eth_address] as [String: Any]
+            if name != nil {
+                dictionaryValues["name"] = name
+            }
+            if twitter_username != nil {
+                dictionaryValues["twitter_username"] = twitter_username
+            }
+            if followers_count != nil {
+                if followers_count! > 0 {
+                    dictionaryValues["twitter_followers_count"] = followers_count ?? 0
+                }
+            }
+            if profileImageUrl != "" {
+                dictionaryValues["profileImageUrl"] = profileImageUrl
+            }
+            if let fcm = Messaging.messaging().fcmToken {
+                dictionaryValues["fcm_token"] = fcm
+            }
+            
+            let values = [uid: dictionaryValues]
+            Database.database().reference().child("users").updateChildValues(values, withCompletionBlock: { (err, ref) in
+                if let err = err {
+                    print("Failed to upload user to database:", err)
+                    return
+                }
+                Database.database().reference().child("eth_addresses").child(eth_address).setValue(uid, withCompletionBlock: { (err, ref) in
+                    if let err = err {
+                        print("Failed to upload eth address to database:", err)
+                        return
+                    }
+                    
+                    if token_id != nil {
+                        self.signToken(withUID: uid, eth_address: eth_address, token_id: token_id!) {
+                            completion()
+                        }
+                    }
+                    else {
+                        completion()
+                    }
+                })
+            })
+        }
     }
     
     func createTwitterUser(withUID uid: String, username: String? = nil, profile_image_url: String? = nil, followers_count: Int? = nil, verified: Int? = nil, id: String? = nil, completion: @escaping (() -> ())) {
@@ -91,7 +138,7 @@ extension Database {
     }
 
     // take into account contract address?
-    func signToken(eth_address: String, token_id: String, completion: @escaping (() -> ())) {
+    func signToken(withUID uid: String, eth_address: String, token_id: String, completion: @escaping (() -> ())) {
         // get their place in line and set that as the value, cloud function for that
         
         Database.database().reference().child("eth_addresses").child(eth_address).child("tokens_signed").child(token_id).setValue(1, withCompletionBlock: { (err, ref) in
@@ -104,7 +151,80 @@ extension Database {
                     print("Failed to sign token in database:", err)
                     return
                 }
-                completion()
+                
+                // fetch user here
+                self.userExists(withUID: uid, completion: { (exists) in
+                    if exists {
+                        Database.database().fetchUser(withUID: uid, completion: { (user) in
+                            // make sure to include a spot the the num signed here to be set by cloud function
+                            
+                            let sync = DispatchGroup()
+                            
+                            print(user)
+                            
+                            if user.name != "" {
+                                sync.enter()
+                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("name").setValue(user.name, withCompletionBlock: { (err, ref) in
+                                    if let err = err {
+                                        print("Failed to sign token in database:", err)
+                                        return
+                                    }
+                                    sync.leave()
+                                })
+                            }
+                            
+                            sync.enter()
+                            Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("num_signer").setValue(1, withCompletionBlock: { (err, ref) in
+                                if let err = err {
+                                    print("Failed to sign token in database:", err)
+                                    return
+                                }
+                                sync.leave()
+                            })
+                            
+                            if user.twitter != "" {
+                                sync.enter()
+                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("twitter").setValue(user.twitter, withCompletionBlock: { (err, ref) in
+                                    if let err = err {
+                                        print("Failed to sign token in database:", err)
+                                        return
+                                    }
+                                    sync.leave()
+                                })
+                            }
+                            
+                            if user.twitter_followers_count != 0 {
+                                sync.enter()
+                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("twitter_followers_count").setValue(user.twitter_followers_count, withCompletionBlock: { (err, ref) in
+                                    if let err = err {
+                                        print("Failed to sign token in database:", err)
+                                        return
+                                    }
+                                    sync.leave()
+                                })
+                            }
+                            
+                            if user.ethereum_address != "" {
+                                sync.enter()
+                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("ethereum_address").setValue(user.ethereum_address, withCompletionBlock: { (err, ref) in
+                                    if let err = err {
+                                        print("Failed to sign token in database:", err)
+                                        return
+                                    }
+                                    sync.leave()
+                                })
+                            }
+                            
+                            sync.notify(queue: .main){
+                                completion()
+                            }
+                        })
+                    }
+                    else {
+                        print("User doesn't exist")
+                        return
+                    }
+                })
             })
         })
     }
@@ -118,6 +238,173 @@ extension Database {
             completion(true)
         }) { (err) in
             print("Failed to fetch user from database:", err)
+        }
+    }
+    
+    // tokens/<token_id>/signer_addresses/<address>/<number_singed> isn't enough
+    // because its missing information such as the name, twitter username, twitter followers count
+    // which we need for ordering by child when retrieving and sorting
+    // so create another child under the token called signer_users which contains all that information,
+    // so that we can sort properly
+    // ^^^^^^^ done now
+    // use tokens/<token_id>/signer_users/<uid>
+//    func fetchMoreSignersOrderedByNumSigner(token_id: String, endAt: Double, completion: @escaping ([User],Double,[String: Double]) -> (), withCancel cancel: ((Error) -> ())?) {
+//        print("endAt is: ", endAt)
+//        let ref = Database.database().reference().child("tokens").child(token_id).child("signer_users")
+//        // endAt gets included in the next one but it shouldn't
+////        ref.queryOrderedByValue().queryEnding(atValue: endAt).queryLimited(toLast: 30).observeSingleEvent(of: .value, with: { (snapshot) in
+//        ref.queryOrdered(byChild: "num_signer").observeSingleEvent(of: .value, with: { (snapshot) in
+//            var users = [User]()
+//            var numSigners = [String: Double]()
+//
+//            let sync = DispatchGroup()
+//            for child in snapshot.children.allObjects as! [DataSnapshot] {
+//                let userId = child.key
+//                sync.enter()
+//                self.userExists(withUID: userId, completion: { (exists) in
+//                    if exists {
+//                        Database.database().fetchUser(withUID: userId, completion: { (user) in
+//                            users.append(user)
+//                            Database.database().fetchUserTokenNumSigned(withUID: userId, token_id: token_id, completion: { (num_signed) in
+//                                numSigners[userId] = Double(num_signed)
+//                                sync.leave()
+//                            })
+//                        })
+//                    }
+//                    else {
+//                        sync.leave()
+//                    }
+//                })
+//            }
+//            sync.notify(queue: .main) {
+////                users.sort(by: { (p1, p2) -> Bool in
+////                    return numSigners[p1.uid] ?? 0 < numSigners[p2.uid] ?? 0
+////                })
+//
+////                // queryEnding keeps the oldest entree of the last batch so remove it here if not the first batch
+////                if endAt != 10000000000000 && users.count > 0 {
+////                    users.remove(at: 0)
+////                }
+//                completion(users,numSigners[users.last?.uid ?? ""] ?? 10000000000000, numSigners)
+//                return
+//            }
+//        }) { (err) in
+//            print("Failed to fetch posts:", err)
+//            cancel?(err)
+//        }
+//    }
+    
+    func fetchFirstSigners(token_id: String, completion: @escaping ([User], [String: Double]) -> (), withCancel cancel: ((Error) -> ())?) {
+        let ref = Database.database().reference().child("tokens").child(token_id).child("signer_users")
+        ref.queryOrdered(byChild: "num_signer").queryLimited(toFirst: 100).observeSingleEvent(of: .value, with: { (snapshot) in
+            var users = [User]()
+            var numSigners = [String: Double]()
+
+            let sync = DispatchGroup()
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                let userId = child.key
+                sync.enter()
+                self.userExists(withUID: userId, completion: { (exists) in
+                    if exists {
+                        Database.database().fetchUser(withUID: userId, completion: { (user) in
+                            users.append(user)
+                            Database.database().fetchUserTokenNumSigned(withUID: userId, token_id: token_id, completion: { (num_signed) in
+                                numSigners[userId] = Double(num_signed)
+                                sync.leave()
+                            })
+                        })
+                    }
+                    else {
+                        sync.leave()
+                    }
+                })
+            }
+            sync.notify(queue: .main) {
+//                users.sort(by: { (p1, p2) -> Bool in
+//                    return numSigners[p1.uid] ?? 0 < numSigners[p2.uid] ?? 0
+//                })
+                completion(users, numSigners)
+                return
+            }
+        }) { (err) in
+            print("Failed to fetch posts:", err)
+            cancel?(err)
+        }
+    }
+    
+    func fetchLatestSigners(token_id: String, completion: @escaping ([User], [String: Double]) -> (), withCancel cancel: ((Error) -> ())?) {
+        let ref = Database.database().reference().child("tokens").child(token_id).child("signer_users")
+        ref.queryOrdered(byChild: "num_signer").queryLimited(toLast: 100).observeSingleEvent(of: .value, with: { (snapshot) in
+            var users = [User]()
+            var numSigners = [String: Double]()
+
+            let sync = DispatchGroup()
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                let userId = child.key
+                sync.enter()
+                self.userExists(withUID: userId, completion: { (exists) in
+                    if exists {
+                        Database.database().fetchUser(withUID: userId, completion: { (user) in
+                            users.append(user)
+                            Database.database().fetchUserTokenNumSigned(withUID: userId, token_id: token_id, completion: { (num_signed) in
+                                numSigners[userId] = Double(num_signed)
+                                sync.leave()
+                            })
+                        })
+                    }
+                    else {
+                        sync.leave()
+                    }
+                })
+            }
+            sync.notify(queue: .main) {
+                users.sort(by: { (p1, p2) -> Bool in
+                    return numSigners[p1.uid] ?? 0 > numSigners[p2.uid] ?? 0
+                })
+                completion(users, numSigners)
+                return
+            }
+        }) { (err) in
+            print("Failed to fetch posts:", err)
+            cancel?(err)
+        }
+    }
+    
+    func fetchMostTwitterFollowerSigners(token_id: String, completion: @escaping ([User], [String: Double]) -> (), withCancel cancel: ((Error) -> ())?) {
+        let ref = Database.database().reference().child("tokens").child(token_id).child("signer_users")
+        ref.queryOrdered(byChild: "twitter_followers_count").queryLimited(toLast: 100).observeSingleEvent(of: .value, with: { (snapshot) in
+            var users = [User]()
+            var numSigners = [String: Double]()
+
+            let sync = DispatchGroup()
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                let userId = child.key
+                sync.enter()
+                self.userExists(withUID: userId, completion: { (exists) in
+                    if exists {
+                        Database.database().fetchUser(withUID: userId, completion: { (user) in
+                            users.append(user)
+                            Database.database().fetchUserTokenNumSigned(withUID: userId, token_id: token_id, completion: { (num_signed) in
+                                numSigners[userId] = Double(num_signed)
+                                sync.leave()
+                            })
+                        })
+                    }
+                    else {
+                        sync.leave()
+                    }
+                })
+            }
+            sync.notify(queue: .main) {
+                users.sort(by: { (p1, p2) -> Bool in
+                    return p1.twitter_followers_count > p2.twitter_followers_count
+                })
+                completion(users, numSigners)
+                return
+            }
+        }) { (err) in
+            print("Failed to fetch posts:", err)
+            cancel?(err)
         }
     }
     
@@ -141,6 +428,38 @@ extension Database {
             }
             let user = User(uid: uid, dictionary: userDictionary)
             completion(user)
+        }) { (err) in
+            print("Failed to fetch user from database:", err)
+        }
+    }
+    
+    func fetchUserTokenNumSigned(withUID uid: String, token_id: String, completion: @escaping (Int) -> ()) {
+        Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("num_signer").observeSingleEvent(of: .value, with: { (snapshot) in
+            if snapshot.value != nil {
+                guard let val = snapshot.value as? Int else {
+                    completion(-1)
+                    return
+                }
+                completion(val)
+            } else {
+                completion(-1)
+            }
+        }) { (err) in
+            print("Failed to fetch user from database:", err)
+        }
+    }
+    
+    func fetchTokenNumSigned(token_id: String, completion: @escaping (Int) -> ()) {
+        Database.database().reference().child("numSignersForToken").child(token_id).observeSingleEvent(of: .value, with: { (snapshot) in
+            if snapshot.value != nil {
+                guard let val = snapshot.value as? Int else {
+                    completion(-1)
+                    return
+                }
+                completion(val)
+            } else {
+                completion(-1)
+            }
         }) { (err) in
             print("Failed to fetch user from database:", err)
         }

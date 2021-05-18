@@ -12,6 +12,7 @@ import UIKit
 import FirebaseDatabase
 import FirebaseAuth
 import Kingfisher
+import NVActivityIndicatorView
 
 // https://swiftpack.co/package/LanfordCai/Secp256k1Swift
 
@@ -19,6 +20,9 @@ import Kingfisher
 // advanced also gives option to sign directly to contract but need crypto to pay for gas.
 // won't connect to bank or anything but will give address so they can deposit crypto. tell them how much
 // to deposit based on estimate
+
+
+// ADD IPFS LINK HERE TOO maybe in the form of a button
 
 class SignController: UIViewController, AddNameControllerDelegate {
 
@@ -80,15 +84,13 @@ class SignController: UIViewController, AddNameControllerDelegate {
     
     private lazy var signedButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Signed!", for: .normal)
-        button.backgroundColor = .white
+        button.setTitle("View Receipt", for: .normal)
+        button.backgroundColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1)
         button.layer.cornerRadius = 15
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
-        button.layer.borderWidth = 0
-        button.setTitleColor(UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1), for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.isHidden = true
-        button.isEnabled = false
-//        button.addTarget(self, action: #selector(signToken), for: .touchUpInside)
+        button.addTarget(self, action: #selector(goToReceipt), for: .touchUpInside)
         return button
     }()
     // advanced sign button underneath this
@@ -102,7 +104,7 @@ class SignController: UIViewController, AddNameControllerDelegate {
         button.layer.cornerRadius = 15
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.setTitleColor(UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1), for: .normal)
-//        button.addTarget(self, action: #selector(signToken), for: .touchUpInside)
+        button.addTarget(self, action: #selector(viewSigners), for: .touchUpInside)
         return button
     }()
     
@@ -111,11 +113,22 @@ class SignController: UIViewController, AddNameControllerDelegate {
         return v
     }()
     
+    let activityIndicatorView = NVActivityIndicatorView(frame: CGRect(x: UIScreen.main.bounds.width/2 - 35, y: UIScreen.main.bounds.height/2 - 35, width: 70, height: 70), type: NVActivityIndicatorType.circleStrokeSpin)
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         configureNavBar()
         NotificationCenter.default.post(name: NSNotification.Name("tabBarColor"), object: nil)
+        
+        UIView.animate(withDuration: 0.25) {
+            self.viewSignersButton.alpha = 1
+            self.tokenImg.alpha = 1
+            self.nftInfoLabel.alpha = 1
+            self.signButton.alpha = 1
+            self.scrollView.alpha = 1
+            self.signedButton.alpha = 1
+        }
     }
     
     override func viewDidLoad() {
@@ -152,29 +165,27 @@ class SignController: UIViewController, AddNameControllerDelegate {
         self.stackView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height ).isActive = true;
         self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
         
-//        tokenImg.frame = CGRect(x: 75, y: 10, width: UIScreen.main.bounds.width - 150, height: UIScreen.main.bounds.width - 150)
-//        self.stackView.insertSubview(tokenImg, at: 4)
-//
-//        self.stackView.insertSubview(nftInfoLabel, at: 4)
-//        nftInfoLabel.anchor(top: tokenImg.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, bottom: signButton.topAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 15, paddingLeft: 40, paddingRight: 40)
-        
-        
         let tokenImgWidthConstraint = tokenImg.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 2/3)
         let tokenImgHeightConstraint = tokenImg.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 2/3)
         tokenImg.addConstraints([tokenImgWidthConstraint, tokenImgHeightConstraint])
         self.stackView.addArrangedSubview(tokenImg)
         
-        self.stackView.addArrangedSubview(nftInfoLabel)
-        
         let signersHeightConstraint = viewSignersButton.heightAnchor.constraint(equalToConstant: 50)
-        let signersWidthConstraint = viewSignersButton.widthAnchor.constraint(equalToConstant: 200)
+        let signersWidthConstraint = viewSignersButton.widthAnchor.constraint(equalToConstant: 250)
         viewSignersButton.addConstraints([signersHeightConstraint, signersWidthConstraint])
         self.stackView.addArrangedSubview(viewSignersButton)
         
-        let paddingHeightConstraint = stackViewPadding.heightAnchor.constraint(equalToConstant: 100)
+        self.stackView.addArrangedSubview(nftInfoLabel)
+        
+        let paddingHeightConstraint = stackViewPadding.heightAnchor.constraint(equalToConstant: 50)
         let paddingWidthConstraint = stackViewPadding.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.7)
         stackViewPadding.addConstraints([paddingHeightConstraint, paddingWidthConstraint])
         self.stackView.addArrangedSubview(stackViewPadding)
+        
+        view.insertSubview(activityIndicatorView, at: 20)
+        activityIndicatorView.isHidden = true
+        activityIndicatorView.color = .black
+        activityIndicatorView.startAnimating()
     }
     
     func configureNavBar() {
@@ -200,7 +211,6 @@ class SignController: UIViewController, AddNameControllerDelegate {
         // normally we would parse for a contract address and for a token id
         if QRCodeValue == "https://apps.apple.com/in/app/bitsig/id1566975289" {
             Database.database().fetchToken(tokenID: "1", completion: { (token) in
-                print(token.imgURL)
                 let url = URL(string: token.imgURL)
                 self.tokenImg.kf.setImage(with: url)
                 self.tokenImg.isHidden = false
@@ -212,6 +222,8 @@ class SignController: UIViewController, AddNameControllerDelegate {
                 attributedText.append(NSMutableAttributedString(string: "Token ID:\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 20)]))
                 attributedText.append(NSMutableAttributedString(string: token.tokenID, attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16)]))
                 self.nftInfoLabel.attributedText = attributedText
+                
+                self.activityIndicatorView.isHidden = true
             })
         }
     }
@@ -223,16 +235,42 @@ class SignController: UIViewController, AddNameControllerDelegate {
             self.nftInfoLabel.alpha = 0
             self.signButton.alpha = 0
             self.scrollView.alpha = 0
+            self.signedButton.alpha = 0
         }
+        
+        // do this here because signed was successful
+        // here specifically because alphas are 0
+        // when return it should be view receipt not sign
+        self.signButton.isHidden = true
+        self.signedButton.isHidden = false
+        
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
             let successfulSignController = SuccessfulSignController()
             successfulSignController.modalPresentationStyle = .fullScreen
             self.present(successfulSignController, animated: false, completion: nil)
         }
-         
-        let successfulSignController = SuccessfulSignController()
-        successfulSignController.modalPresentationStyle = .fullScreen
-        self.present(successfulSignController, animated: false, completion: nil)
+    }
+    
+    @objc func goToReceipt() {
+        UIView.animate(withDuration: 0.5) {
+            self.viewSignersButton.alpha = 0
+            self.tokenImg.alpha = 0
+            self.nftInfoLabel.alpha = 0
+            self.signButton.alpha = 0
+            self.scrollView.alpha = 0
+            self.signedButton.alpha = 0
+        }
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { timer in
+            let successfulSignController = SuccessfulSignController()
+            successfulSignController.modalPresentationStyle = .fullScreen
+            successfulSignController.isReceipt = true
+            self.present(successfulSignController, animated: false, completion: nil)
+        }
+    }
+    
+    @objc func viewSigners() {
+        let tokenSignersController = TokenSignersController()
+        navigationController?.pushViewController(tokenSignersController, animated: true)
     }
     
     @objc func removeSignedButtonIfSigned() {
@@ -303,7 +341,7 @@ class SignController: UIViewController, AddNameControllerDelegate {
                                 self.goToSuccessfulSignController()
                             }
                             else {
-                                Database.database().signToken(eth_address: wallet.address, token_id: "1") {
+                                Database.database().signToken(withUID:currentLoggedInUserId, eth_address: wallet.address, token_id: "1") {
                                     self.goToSuccessfulSignController()
                                 }
                             }

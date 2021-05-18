@@ -123,6 +123,9 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
+  - NVActivityIndicatorView (5.1.1):
+    - NVActivityIndicatorView/Base (= 5.1.1)
+  - NVActivityIndicatorView/Base (5.1.1)
   - PromiseKit (6.8.5):
     - PromiseKit/CorePromise (= 6.8.5)
     - PromiseKit/Foundation (= 6.8.5)
@@ -153,6 +156,7 @@ DEPENDENCIES:
   - Firebase/Storage
   - Kingfisher (~> 6.0)
   - lottie-ios
+  - NVActivityIndicatorView
   - SAConfettiView
   - SwiftyJSON
   - web3swift
@@ -179,6 +183,7 @@ SPEC REPOS:
     - leveldb-library
     - lottie-ios
     - nanopb
+    - NVActivityIndicatorView
     - PromiseKit
     - PromisesObjC
     - SAConfettiView
@@ -208,6 +213,7 @@ SPEC CHECKSUMS:
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   lottie-ios: a033bb989eea77d9f99cc4e2bbdd3788229761ad
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  NVActivityIndicatorView: 1f6c5687f1171810aa27a3296814dc2d7dec3667
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SAConfettiView: c87031a2280659261b730fce3669fb10e73636ee
@@ -216,6 +222,6 @@ SPEC CHECKSUMS:
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   web3swift: 0f097eafe1d08f478694b882581b85a01afb6633
 
-PODFILE CHECKSUM: ace4d542b9edcd9353fbd40bf012e6c6b52e9dee
+PODFILE CHECKSUM: f5c68f1ccd61b36ef561152d52e27cc70da78140
 
 COCOAPODS: 1.10.1

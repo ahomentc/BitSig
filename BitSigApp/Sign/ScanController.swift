@@ -65,6 +65,39 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         return label
     }()
     
+    private lazy var signFirstNFTButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.backgroundColor = UIColor.clear
+        button.setTitleColor(.white, for: .normal)
+        button.layer.zPosition = 6
+        button.contentHorizontalAlignment = UIControl.ContentHorizontalAlignment.right
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.setTitle("Sign the first signable NFT!", for: .normal)
+        button.addTarget(self, action: #selector(goToFirstTokenSignPage), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var closeFirstNFTButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.backgroundColor = UIColor.clear
+        button.layer.zPosition = 6
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.setImage(#imageLiteral(resourceName: "x"), for: .normal)
+        button.tintColor = .white
+        button.contentEdgeInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        button.addTarget(self, action: #selector(closeFirstNFT), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var signFirstNFTBackground: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 0.9)
+        view.layer.cornerRadius = 15
+        view.clipsToBounds = true
+        view.layer.zPosition = 5
+        return view
+    }()
+    
     private let sendButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Send", for: .normal)
@@ -189,8 +222,17 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         qrIconImage.frame = CGRect(x: UIScreen.main.bounds.width/2 - 50, y: 150 + 200/2, width: 100, height: 100)
         view.insertSubview(qrIconImage, at: 5)
         
-        scanLabel.frame = CGRect(x: 20, y: 120 + 280, width: UIScreen.main.bounds.width - 40, height: 60)
+        scanLabel.frame = CGRect(x: 20, y: 120 + 240, width: UIScreen.main.bounds.width - 40, height: 60)
         view.insertSubview(scanLabel, at: 5)
+        
+        signFirstNFTButton.frame = CGRect(x: UIScreen.main.bounds.width/2-160, y: 120 + 350, width: 250, height: 60)
+        view.insertSubview(signFirstNFTButton, at: 7)
+        
+        closeFirstNFTButton.frame = CGRect(x: UIScreen.main.bounds.width/2+90, y: 120 + 350, width: 60, height: 60)
+        view.insertSubview(closeFirstNFTButton, at: 7)
+        
+        signFirstNFTBackground.frame = CGRect(x: UIScreen.main.bounds.width/2-170, y: 120 + 350, width: 340, height: 60)
+        view.insertSubview(signFirstNFTBackground, at: 6)
         
         refreshTopButtons()
         
@@ -335,6 +377,16 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         let signController = SignController()
         signController.QRCodeValue = QRValue
         navigationController?.pushViewController(signController, animated: true)
+    }
+    
+    @objc func goToFirstTokenSignPage() {
+        found(code: "https://apps.apple.com/in/app/bitsig/id1566975289")
+    }
+    
+    @objc func closeFirstNFT() {
+        self.signFirstNFTButton.isHidden = true
+        self.closeFirstNFTButton.isHidden = true
+        self.signFirstNFTBackground.isHidden = true
     }
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {

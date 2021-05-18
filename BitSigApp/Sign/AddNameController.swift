@@ -21,12 +21,25 @@ protocol AddNameControllerDelegate{
 }
 
 
-class AddNameController: UIViewController {
+class AddNameController: UIViewController, UINavigationControllerDelegate {
     
     var token_id = "1"
     var delegate: AddNameControllerDelegate?
     
     var twitter_username = ""
+    var followers_count = 0
+    
+    private var profileImage: UIImage?
+    
+    private let plusPhotoButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(#imageLiteral(resourceName: "plus_photo"), for: .normal)
+        button.layer.masksToBounds = true
+        button.tintColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1)
+        button.imageView?.contentMode = .scaleAspectFill
+        button.addTarget(self, action: #selector(handlePlusPhoto), for: .touchUpInside)
+        return button
+    }()
     
     private lazy var addNameExplanationLabel: UILabel = {
         let label = UILabel()
@@ -104,6 +117,10 @@ class AddNameController: UIViewController {
         addNameExplanationLabel.frame = CGRect(x: 20, y: 30, width: UIScreen.main.bounds.width - 40, height: 170)
         self.view.insertSubview(addNameExplanationLabel, at: 4)
         
+        view.addSubview(plusPhotoButton)
+        plusPhotoButton.anchor(top: addNameExplanationLabel.bottomAnchor, paddingTop: 5, width: 140, height: 140)
+        plusPhotoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        plusPhotoButton.layer.cornerRadius = 140 / 2
        
         let stackView = UIStackView(arrangedSubviews: [nameTextField, connectTwitterButton, submitButton, skipButton])
         stackView.distribution = .fillEqually
@@ -111,10 +128,10 @@ class AddNameController: UIViewController {
         stackView.spacing = 15
         
         self.view.insertSubview(stackView, at: 4)
-        stackView.anchor(top: addNameExplanationLabel.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 20, paddingLeft: 40, paddingRight: 40, height: 234)
+        stackView.anchor(top: plusPhotoButton.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 30, paddingLeft: 40, paddingRight: 40, height: 234)
         
-//        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-//        view.addGestureRecognizer(tap)
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tap)
     }
     
     var provider = OAuthProvider(providerID: "twitter.com")
@@ -150,6 +167,7 @@ class AddNameController: UIViewController {
                     let id_str = twitter_info["id_str"] as! String
                     
                     self.twitter_username = username
+                    self.followers_count = followers_count.intValue
                     
                     self.connectTwitterButton.setTitle("Connected to: " + self.twitter_username, for: .normal)
                     self.connectTwitterButton.layer.borderWidth = 0
@@ -187,7 +205,7 @@ class AddNameController: UIViewController {
                 let address = keystore.addresses!.first!.address
                 let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
 
-                Database.database().uploadUser(withUID: currentLoggedInUserId, eth_address: wallet.address, name: nameTextField.text ?? "", twitter_username: twitter_username, token_id: token_id) {
+                Database.database().uploadUser(withUID: currentLoggedInUserId, eth_address: wallet.address, name: nameTextField.text ?? "", twitter_username: twitter_username, followers_count: followers_count, token_id: token_id, profileImage: profileImage) {
                     self.dismiss(animated: true, completion: {
                         self.delegate?.goToSuccessfulSignController()
                     })
@@ -212,7 +230,31 @@ class AddNameController: UIViewController {
         }
     }
     
+    @objc private func handlePlusPhoto() {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
     @objc func dismissKeyboard() {
         nameTextField.resignFirstResponder()
+    }
+}
+
+extension AddNameController: UIImagePickerControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+
+
+        if let editedImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")] as? UIImage {
+            plusPhotoButton.setImage(editedImage.withRenderingMode(.alwaysOriginal), for: .normal)
+            profileImage = editedImage
+        } else if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerOriginalImage")] as? UIImage {
+            plusPhotoButton.setImage(originalImage.withRenderingMode(.alwaysOriginal), for: .normal)
+            profileImage = originalImage
+        }
+        plusPhotoButton.layer.borderColor = UIColor(white: 0, alpha: 0.2).cgColor
+        plusPhotoButton.layer.borderWidth = 0.5
+        dismiss(animated: true, completion: nil)
     }
 }

@@ -21,4 +21,5 @@ target 'BitSigApp' do
   pod 'Kingfisher', '~> 6.0'
   pod 'lottie-ios'
   pod 'SwiftyJSON'
+  pod 'NVActivityIndicatorView'
 end

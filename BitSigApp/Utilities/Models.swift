@@ -10,18 +10,28 @@ import Foundation
 
 struct User: Equatable, Codable {
     
+    let ethereum_address: String
     let uid: String
     let username: String
     let name: String
     let twitter: String
-    let ethereum_address: String
-    
+    let twitter_followers_count: Int
+    let profileImageURL: String
+
     init(uid: String, dictionary: [String: Any]) {
+        print(dictionary)
+        self.ethereum_address = dictionary["eth_address"] as? String ?? ""
         self.uid = uid
         self.username = dictionary["username"] as? String ?? ""
         self.name = dictionary["name"] as? String ?? ""
-        self.twitter = dictionary["twitter"] as? String ?? ""
-        self.ethereum_address = dictionary["ethereum_address"] as? String ?? ""
+        self.twitter = dictionary["twitter_username"] as? String ?? ""
+        self.profileImageURL = dictionary["profileImageUrl"] as? String ?? ""
+        if dictionary["twitter_followers_count"] as? Int ?? 0 > 0 {
+            self.twitter_followers_count = dictionary["twitter_followers_count"] as? Int ?? 0
+        }
+        else {
+            self.twitter_followers_count = 0
+        }
     }
     
     static func ==(lhs: User, rhs: User) -> Bool {
