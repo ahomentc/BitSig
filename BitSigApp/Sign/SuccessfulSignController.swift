@@ -61,6 +61,20 @@ class SuccessfulSignController: UIViewController {
         return button
     }()
     
+    private lazy var notifiedButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Turn on sale notification", for: .normal)
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 15
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.setTitleColor(UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1), for: .normal)
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor(red: 0/255, green: 166/255, blue: 107/255, alpha: 1).cgColor
+        button.isHidden = true
+        button.addTarget(self, action: #selector(enableNotification), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var successLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = UIColor.clear
@@ -101,8 +115,8 @@ class SuccessfulSignController: UIViewController {
         self.navigationController?.navigationBar.barTintColor = UIColor.init(white: 1, alpha: 1)
         self.view.backgroundColor = UIColor.init(white: 1, alpha: 1)
         
-        homeButton.frame = CGRect(x: 40, y: UIScreen.main.bounds.height - 90, width: UIScreen.main.bounds.width - 80, height: 50)
-        self.view.insertSubview(homeButton, at: 4)
+//        homeButton.frame = CGRect(x: 40, y: UIScreen.main.bounds.height - 90, width: UIScreen.main.bounds.width - 80, height: 50)
+//        self.view.insertSubview(homeButton, at: 4)
         
 //        successLabel.frame = CGRect(x: 20, y: 30, width: UIScreen.main.bounds.width - 40, height: 170)
 //        self.view.insertSubview(successLabel, at: 4)
@@ -110,25 +124,43 @@ class SuccessfulSignController: UIViewController {
         self.view.insertSubview(successImage, at: 4)
         successImage.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 20, paddingRight: 20, height: UIScreen.main.bounds.height * 0.7)
         
-        self.view.insertSubview(saveButton, at: 4)
-        saveButton.anchor(top: successImage.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 0, paddingLeft: 80, paddingRight: 80, height: 50)
-        
+        let isRegisteredForRemoteNotifications = UIApplication.shared.isRegisteredForRemoteNotifications
+        if isRegisteredForRemoteNotifications {
+            self.view.insertSubview(homeButton, at: 4)
+            homeButton.anchor(left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor, paddingLeft: 30, paddingBottom: 20, paddingRight: 30, height: 50)
+            
+            self.view.insertSubview(saveButton, at: 4)
+            saveButton.anchor(left: view.leftAnchor, bottom: homeButton.topAnchor, right: view.rightAnchor, paddingLeft: 30, paddingBottom: 10, paddingRight: 30, height: 50)
+        } else {
+            self.view.insertSubview(saveButton, at: 4)
+            saveButton.anchor(top: successImage.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: -10, paddingLeft: 30, paddingRight: 30, height: 50)
+            
+            self.view.insertSubview(notifiedButton, at: 4)
+            notifiedButton.anchor(top: saveButton.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 10, paddingLeft: 30, paddingRight: 30, height: 50)
+            
+            self.view.insertSubview(homeButton, at: 4)
+            homeButton.anchor(top: notifiedButton.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 10, paddingLeft: 30, paddingRight: 30, height: 50)
+        }
+
         if isReceipt {
             animationView?.isHidden = true
             self.successLabel.alpha = 0
             self.successImage.alpha = 0
             self.homeButton.alpha = 0
             self.saveButton.alpha = 0
+            self.notifiedButton.alpha = 0
             self.successLabel.isHidden = false
             self.successImage.isHidden = false
             self.homeButton.isHidden = false
             self.saveButton.isHidden = false
+            self.notifiedButton.isHidden = false
             Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { timer in
                 UIView.animate(withDuration: 1) {
                     self.successLabel.alpha = 1
                     self.successImage.alpha = 1
                     self.homeButton.alpha = 1
                     self.saveButton.alpha = 1
+                    self.notifiedButton.alpha = 1
                 }
             }
         }
@@ -145,10 +177,12 @@ class SuccessfulSignController: UIViewController {
                 self.successImage.alpha = 0
                 self.homeButton.alpha = 0
                 self.saveButton.alpha = 0
+                self.notifiedButton.alpha = 0
                 self.successLabel.isHidden = false
                 self.successImage.isHidden = false
                 self.homeButton.isHidden = false
                 self.saveButton.isHidden = false
+                self.notifiedButton.isHidden = false
                 UIView.animate(withDuration: 0.5) {
                     self.animationView?.alpha = 0
                 }
@@ -157,13 +191,17 @@ class SuccessfulSignController: UIViewController {
                     self.successImage.alpha = 1
                     self.homeButton.alpha = 1
                     self.saveButton.alpha = 1
+                    self.notifiedButton.alpha = 1
                 }
                 Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
                     self.animationView?.isHidden = true
                 }
             }
         }
-        createImage()
+        
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { timer in
+            self.createImage()
+        }
     }
     
     func createImage() {
@@ -200,6 +238,15 @@ class SuccessfulSignController: UIViewController {
         UIImageWriteToSavedPhotosAlbum(self.successImage.image!, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
     }
     
+    @objc private func enableNotification() {
+        let pushManager = PushNotificationManager()
+        pushManager.registerForPushNotifications()
+        
+        homeButton.anchor(left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor, paddingLeft: 30, paddingBottom: 20, paddingRight: 30, height: 50)
+        saveButton.anchor(left: view.leftAnchor, bottom: homeButton.topAnchor, right: view.rightAnchor, paddingLeft: 30, paddingBottom: 10, paddingRight: 30, height: 50)
+        self.notifiedButton.isHidden = true
+    }
+    
     @objc func image(_ image: UIImage, didFinishSavingWithError error: NSError?, contextInfo: UnsafeRawPointer) {
         if let error = error {
             // we got back an error!
@@ -224,6 +271,7 @@ class SuccessfulSignController: UIViewController {
             self.successImage.alpha = 0
             self.homeButton.alpha = 0
             self.saveButton.alpha = 0
+            self.notifiedButton.alpha = 0
         }
         Timer.scheduledTimer(withTimeInterval: 0.25, repeats: false) { timer in
             self.dismiss(animated: false, completion: {})

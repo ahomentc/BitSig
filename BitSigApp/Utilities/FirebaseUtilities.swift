@@ -241,6 +241,19 @@ extension Database {
         }
     }
     
+    func hasUserSignedToken(token_id: String, completion: @escaping (Bool) -> ()) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("ethereum_address").observeSingleEvent(of: .value, with: { (snapshot) in
+            guard (snapshot.value as? String) != nil else {
+                completion(false)
+                return
+            }
+            completion(true)
+        }) { (err) in
+            print("Failed to fetch user from database:", err)
+        }
+    }
+    
     // tokens/<token_id>/signer_addresses/<address>/<number_singed> isn't enough
     // because its missing information such as the name, twitter username, twitter followers count
     // which we need for ordering by child when retrieving and sorting
@@ -327,7 +340,7 @@ extension Database {
                 return
             }
         }) { (err) in
-            print("Failed to fetch posts:", err)
+            print("Failed to fetch:", err)
             cancel?(err)
         }
     }
@@ -365,7 +378,7 @@ extension Database {
                 return
             }
         }) { (err) in
-            print("Failed to fetch posts:", err)
+            print("Failed to fetch:", err)
             cancel?(err)
         }
     }
@@ -403,7 +416,121 @@ extension Database {
                 return
             }
         }) { (err) in
-            print("Failed to fetch posts:", err)
+            print("Failed to fetch:", err)
+            cancel?(err)
+        }
+    }
+    
+    func searchForAddress(address: String, token_id: String, completion: @escaping ([User], [String: Double]) -> (), withCancel cancel: ((Error) -> ())?) {
+        let ref = Database.database().reference().child("tokens").child(token_id).child("signer_users")
+        ref.queryOrdered(byChild: "ethereum_address").queryStarting(atValue: address).queryEnding(atValue: address+"\u{f8ff}").queryLimited(toLast: 30).observeSingleEvent(of: .value, with: { (snapshot) in
+            var users = [User]()
+            var numSigners = [String: Double]()
+
+            let sync = DispatchGroup()
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                let userId = child.key
+                sync.enter()
+                self.userExists(withUID: userId, completion: { (exists) in
+                    if exists {
+                        Database.database().fetchUser(withUID: userId, completion: { (user) in
+                            users.append(user)
+                            Database.database().fetchUserTokenNumSigned(withUID: userId, token_id: token_id, completion: { (num_signed) in
+                                numSigners[userId] = Double(num_signed)
+                                sync.leave()
+                            })
+                        })
+                    }
+                    else {
+                        sync.leave()
+                    }
+                })
+            }
+            sync.notify(queue: .main) {
+                users.sort(by: { (p1, p2) -> Bool in
+                    return numSigners[p1.uid] ?? 0 < numSigners[p2.uid] ?? 0
+                })
+                completion(users, numSigners)
+                return
+            }
+        }) { (err) in
+            print("Failed to fetch:", err)
+            cancel?(err)
+        }
+    }
+    
+    func searchForName(name: String, token_id: String, completion: @escaping ([User], [String: Double]) -> (), withCancel cancel: ((Error) -> ())?) {
+        let ref = Database.database().reference().child("tokens").child(token_id).child("signer_users")
+        ref.queryOrdered(byChild: "name").queryStarting(atValue: name).queryEnding(atValue: name+"\u{f8ff}").queryLimited(toLast: 30).observeSingleEvent(of: .value, with: { (snapshot) in
+            var users = [User]()
+            var numSigners = [String: Double]()
+
+            let sync = DispatchGroup()
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                let userId = child.key
+                sync.enter()
+                self.userExists(withUID: userId, completion: { (exists) in
+                    if exists {
+                        Database.database().fetchUser(withUID: userId, completion: { (user) in
+                            users.append(user)
+                            Database.database().fetchUserTokenNumSigned(withUID: userId, token_id: token_id, completion: { (num_signed) in
+                                numSigners[userId] = Double(num_signed)
+                                sync.leave()
+                            })
+                        })
+                    }
+                    else {
+                        sync.leave()
+                    }
+                })
+            }
+            sync.notify(queue: .main) {
+                users.sort(by: { (p1, p2) -> Bool in
+                    return numSigners[p1.uid] ?? 0 < numSigners[p2.uid] ?? 0
+                })
+                completion(users, numSigners)
+                return
+            }
+        }) { (err) in
+            print("Failed to fetch:", err)
+            cancel?(err)
+        }
+    }
+    
+    func searchForTwitter(twitter: String, token_id: String, completion: @escaping ([User], [String: Double]) -> (), withCancel cancel: ((Error) -> ())?) {
+        let ref = Database.database().reference().child("tokens").child(token_id).child("signer_users")
+        ref.queryOrdered(byChild: "twitter").queryStarting(atValue: twitter).queryEnding(atValue: twitter+"\u{f8ff}").queryLimited(toLast: 30).observeSingleEvent(of: .value, with: { (snapshot) in
+            var users = [User]()
+            var numSigners = [String: Double]()
+
+            let sync = DispatchGroup()
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                let userId = child.key
+                sync.enter()
+                self.userExists(withUID: userId, completion: { (exists) in
+                    if exists {
+                        Database.database().fetchUser(withUID: userId, completion: { (user) in
+                            users.append(user)
+                            Database.database().fetchUserTokenNumSigned(withUID: userId, token_id: token_id, completion: { (num_signed) in
+                                numSigners[userId] = Double(num_signed)
+                                sync.leave()
+                            })
+                        })
+                    }
+                    else {
+                        sync.leave()
+                    }
+                })
+            }
+            sync.notify(queue: .main) {
+                users.sort(by: { (p1, p2) -> Bool in
+                    return numSigners[p1.uid] ?? 0 < numSigners[p2.uid] ?? 0
+                })
+                completion(users, numSigners)
+                return
+            }
+        }) { (err) in
+            print("Failed to fetch:", err)
             cancel?(err)
         }
     }

@@ -12,6 +12,12 @@ import FirebaseAuth
 import FirebaseDatabase
 import NVActivityIndicatorView
 
+enum SortType {
+    case firstSigned
+    case latestSigned
+    case twitter
+}
+
 class TokenSignersController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, TokenSignerCellDelegate {
     
     // I put their twitter follower count in Users too so i can sort by that
@@ -22,6 +28,8 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
     var numSigners: [String: Double]?
     
     var tokenId = "1"
+    
+    var sortType = SortType.firstSigned
     
     let activityIndicatorView = NVActivityIndicatorView(frame: CGRect(x: UIScreen.main.bounds.width/2 - 35, y: UIScreen.main.bounds.height/2 - 35, width: 70, height: 70), type: NVActivityIndicatorType.circleStrokeSpin)
     
@@ -81,11 +89,13 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
     
     private let searchBar: UISearchBar = {
         let sb = UISearchBar()
-        sb.placeholder = "Search by name, twitter username, or wallet address"
+        sb.placeholder = "Search name, twitter, wallet"
         sb.autocorrectionType = .no
         sb.autocapitalizationType = .none
-        sb.barTintColor = .gray
-        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).backgroundColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1)
+        sb.barTintColor = .white
+        sb.layer.borderWidth = 0
+        sb.backgroundImage = UIImage()
+        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).backgroundColor = UIColor.init(white: 0.95, alpha: 1)
         return sb
     }()
     
@@ -97,23 +107,27 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
         
         view.backgroundColor = .white
         
-        firstSignersButton.frame = CGRect(x: UIScreen.main.bounds.width/2 - 150 - 10, y: 40, width: 100, height: 55)
+        searchBar.frame = CGRect(x: 10, y: 0, width: UIScreen.main.bounds.width - 20, height: 60)
+        searchBar.delegate = self
+        view.insertSubview(searchBar, at: 5)
+        
+        firstSignersButton.frame = CGRect(x: UIScreen.main.bounds.width/2 - 150 - 10, y: 40 + 60, width: 100, height: 55)
         view.insertSubview(firstSignersButton, at: 5)
         
-        latestSignersButton.frame = CGRect(x: UIScreen.main.bounds.width/2 - 50, y: 40, width: 100, height: 55)
+        latestSignersButton.frame = CGRect(x: UIScreen.main.bounds.width/2 - 50, y: 40 + 60, width: 100, height: 55)
         view.insertSubview(latestSignersButton, at: 5)
         
-        twitterSortButton.frame = CGRect(x: UIScreen.main.bounds.width/2 + 50 + 10, y: 40, width: 100, height: 55)
+        twitterSortButton.frame = CGRect(x: UIScreen.main.bounds.width/2 + 50 + 10, y: 40 + 60, width: 100, height: 55)
         view.insertSubview(twitterSortButton, at: 5)
         
         view.insertSubview(orderByLabel, at: 5)
-        orderByLabel.anchor(top: view.topAnchor, left: firstSignersButton.leftAnchor, right: view.rightAnchor, paddingTop: 5, paddingLeft: 10, paddingRight: 10)
+        orderByLabel.anchor(top: view.topAnchor, left: firstSignersButton.leftAnchor, right: view.rightAnchor, paddingTop: 5 + 60, paddingLeft: 10, paddingRight: 10)
         
         let layout = UICollectionViewFlowLayout()
         layout.itemSize = CGSize(width: self.view.frame.width, height: 60)
         layout.minimumLineSpacing = CGFloat(0)
 
-        collectionView = UICollectionView(frame: CGRect(x: 0, y: 115, width: self.view.frame.width, height: self.view.frame.height - 230), collectionViewLayout: layout)
+        collectionView = UICollectionView(frame: CGRect(x: 0, y: 115 + 60, width: self.view.frame.width, height: self.view.frame.height - 230), collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
@@ -130,6 +144,9 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
         activityIndicatorView.isHidden = true
         activityIndicatorView.color = .black
         activityIndicatorView.startAnimating()
+        
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tap)
     }
     
     func twitterPressed(username: String) {
@@ -143,6 +160,7 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
     }
     
     @objc func fetchFirstTokenSigners() {
+        sortType = .firstSigned
         firstSignersButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 1)
         latestSignersButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 0.5)
         twitterSortButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 0.5)
@@ -156,6 +174,7 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
     }
     
     @objc func fetchLatestTokenSigners() {
+        sortType = .latestSigned
         firstSignersButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 0.5)
         latestSignersButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 1)
         twitterSortButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 0.5)
@@ -167,8 +186,9 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
         }) { (_) in
         }
     }
-    
+
     @objc func fetchTokenSignersByTwitterFollowers() {
+        sortType = .twitter
         firstSignersButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 0.5)
         latestSignersButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 0.5)
         twitterSortButton.backgroundColor = UIColor(red: 0/255, green: 156/255, blue: 97/255, alpha: 1)
@@ -179,6 +199,10 @@ class TokenSignersController: UIViewController, UICollectionViewDelegate, UIColl
             self.collectionView?.reloadData()
         }) { (_) in
         }
+    }
+    
+    @objc func dismissKeyboard() {
+        searchBar.resignFirstResponder()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -225,16 +249,123 @@ extension Dictionary {
 
 extension TokenSignersController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let user = tokenSigners?[indexPath.row]
-        var size = 120
-        
-        if user?.name != "" {
-            size += 40
+        if indexPath.row < tokenSigners?.count ?? 0 {
+            let user = tokenSigners?[indexPath.row]
+            var size = 120
+            
+            if user?.name != "" {
+                size += 40
+            }
+            if user?.twitter != "" {
+                size += 70
+            }
+            return CGSize(width: view.frame.width, height: CGFloat(size))
         }
-        if user?.twitter != "" {
-            size += 70
+        return CGSize(width: view.frame.width, height: 120)
+    }
+}
+
+extension TokenSignersController: UISearchBarDelegate {
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            self.firstSignersButton.isHidden = false
+            self.latestSignersButton.isHidden = false
+            self.twitterSortButton.isHidden = false
+            self.orderByLabel.isHidden = false
+            self.collectionView.frame = CGRect(x: 0, y: 115 + 60, width: self.view.frame.width, height: self.view.frame.height - 230)
+            
+            if self.sortType == .firstSigned {
+                self.fetchFirstTokenSigners()
+            }
+            else if self.sortType == .latestSigned {
+                self.fetchLatestTokenSigners()
+            }
+            else if self.sortType == .twitter {
+                self.fetchTokenSignersByTwitterFollowers()
+            }
         }
-        
-        return CGSize(width: view.frame.width, height: CGFloat(size))
+        else {
+            self.tokenSigners = [User]()
+            self.numSigners = [String: Double]()
+            
+            self.firstSignersButton.isHidden = true
+            self.latestSignersButton.isHidden = true
+            self.twitterSortButton.isHidden = true
+            self.orderByLabel.isHidden = true
+            self.collectionView.frame = CGRect(x: 0, y: 70, width: self.view.frame.width, height: self.view.frame.height - 105)
+            
+            // do the other ones too so make this pparent
+            Database.database().searchForAddress(address: searchText, token_id: tokenId, completion: { (signers, num_signers) in
+                self.activityIndicatorView.isHidden = true
+                if self.tokenSigners == nil {
+                    self.tokenSigners = signers
+                }
+                else {
+                    self.tokenSigners! += signers
+                }
+                if self.numSigners == nil {
+                    self.numSigners = num_signers
+                }
+                else {
+                    self.numSigners!.merge(dict: num_signers)
+                }
+                self.collectionView?.reloadData()
+            }) { (_) in
+            }
+            
+            Database.database().searchForName(name: searchText, token_id: tokenId, completion: { (signers, num_signers) in
+                self.activityIndicatorView.isHidden = true
+                if self.tokenSigners == nil {
+                    self.tokenSigners = signers
+                }
+                else {
+                    self.tokenSigners! += signers
+                }
+                if self.numSigners == nil {
+                    self.numSigners = num_signers
+                }
+                else {
+                    self.numSigners!.merge(dict: num_signers)
+                }
+                self.collectionView?.reloadData()
+            }) { (_) in
+            }
+            
+            Database.database().searchForTwitter(twitter: searchText, token_id: tokenId, completion: { (signers, num_signers) in
+                self.activityIndicatorView.isHidden = true
+                if self.tokenSigners == nil {
+                    self.tokenSigners = signers
+                }
+                else {
+                    self.tokenSigners! += signers
+                }
+                if self.numSigners == nil {
+                    self.numSigners = num_signers
+                }
+                else {
+                    self.numSigners!.merge(dict: num_signers)
+                }
+                self.collectionView?.reloadData()
+            }) { (_) in
+            }
+        }
+//        if searchText.isEmpty {
+//            self.filteredUsers = []
+//            self.filteredGroups = []
+//            self.collectionView?.reloadData()
+//        } else {
+//            if isUsersView {
+//                searchForUser(username: searchText)
+//            }
+//            else {
+//                searchForGroup(search_word: searchText.replacingOccurrences(of: " ", with: "_-a-_").replacingOccurrences(of: "‘", with: "_-b-_").replacingOccurrences(of: "'", with: "_-b-_").replacingOccurrences(of: "’", with: "_-b-_"))
+//            }
+//        }
+//        self.collectionView?.reloadData()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
     }
 }
