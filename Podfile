@@ -10,13 +10,15 @@ target 'BitSigApp' do
   use_frameworks!
 
   # Pods for BitSigApp
-  pod 'web3swift'
+#  pod 'web3swift'
+  pod 'web3swift', :git => 'https://github.com/ahomentc/web3swift.git', :branch => 'develop'
   pod 'Firebase/Analytics'
   pod 'Firebase/Auth'
   pod 'Firebase/Database'
   pod 'Firebase/Storage'
   pod 'Firebase/Core'
   pod 'Firebase/Messaging'
+  pod 'GoogleSignIn'
   pod 'SAConfettiView'
   pod 'Kingfisher', '~> 6.0'
   pod 'lottie-ios'

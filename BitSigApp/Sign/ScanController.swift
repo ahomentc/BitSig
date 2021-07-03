@@ -109,7 +109,7 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.setTitleColor(.white, for: .normal)
         button.isHidden = true
-//        button.addTarget(self, action: #selector(handleRestore), for: .touchUpInside)
+        button.addTarget(self, action: #selector(openSend), for: .touchUpInside)
         return button
     }()
     
@@ -122,7 +122,7 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.setTitleColor(.white, for: .normal)
         button.isHidden = true
-//        button.addTarget(self, action: #selector(handleRestore), for: .touchUpInside)
+        button.addTarget(self, action: #selector(openRecieve), for: .touchUpInside)
         return button
     }()
     
@@ -152,7 +152,9 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         return button
     }()
     
-    let web3 = Web3.InfuraMainnetWeb3()
+//    let web3 = Web3.InfuraMainnetWeb3()
+//    let web3 = Web3.InfuraRinkebyWeb3()
+    let web3 = Web3.InfuraRopstenWeb3()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -226,14 +228,17 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         scanLabel.frame = CGRect(x: 20, y: 120 + 240, width: UIScreen.main.bounds.width - 40, height: 60)
         view.insertSubview(scanLabel, at: 5)
         
-        signFirstNFTButton.frame = CGRect(x: UIScreen.main.bounds.width/2-160, y: 120 + 350, width: 250, height: 60)
-        view.insertSubview(signFirstNFTButton, at: 7)
         
-        closeFirstNFTButton.frame = CGRect(x: UIScreen.main.bounds.width/2+90, y: 120 + 350, width: 60, height: 60)
-        view.insertSubview(closeFirstNFTButton, at: 7)
-        
-        signFirstNFTBackground.frame = CGRect(x: UIScreen.main.bounds.width/2-160, y: 120 + 350, width: 320, height: 60)
-        view.insertSubview(signFirstNFTBackground, at: 6)
+        if (UserDefaults.standard.object(forKey: "firstTokenViewed") as? Data) == nil {
+            signFirstNFTButton.frame = CGRect(x: UIScreen.main.bounds.width/2-160, y: 120 + 350, width: 250, height: 60)
+            view.insertSubview(signFirstNFTButton, at: 7)
+            
+            closeFirstNFTButton.frame = CGRect(x: UIScreen.main.bounds.width/2+90, y: 120 + 350, width: 60, height: 60)
+            view.insertSubview(closeFirstNFTButton, at: 7)
+            
+            signFirstNFTBackground.frame = CGRect(x: UIScreen.main.bounds.width/2-160, y: 120 + 350, width: 320, height: 60)
+            view.insertSubview(signFirstNFTBackground, at: 6)
+        }
         
         refreshTopButtons()
         
@@ -241,12 +246,22 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleLogin), name: NSNotification.Name(rawValue: "sendToLogin"), object: nil)
         
-        DispatchQueue.main.async {
-            self.getWalletBalance()
-            // use promisekit somehow
+        NotificationCenter.default.addObserver(self, selector: #selector(getWalletBalance), name: NSNotification.Name(rawValue: "keychainSet"), object: nil)
+        
+        if let walletBalanceRetrieved = UserDefaults.standard.object(forKey: "walletBalance") as? Data {
+            guard let walletBalance = try? JSONDecoder().decode(String.self, from: walletBalanceRetrieved) else {
+                return
+            }
+            let attributedText = NSMutableAttributedString(string: "Balance:\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 14), NSAttributedString.Key.foregroundColor: UIColor.init(white: 0.9, alpha: 1)])
+            attributedText.append(NSMutableAttributedString(string: walletBalance, attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 40), NSAttributedString.Key.foregroundColor: UIColor.init(white: 1, alpha: 1)]))
+            self.balanceLabel.attributedText = attributedText
         }
         
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.getWalletBalance()
+        }
     }
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -283,6 +298,20 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         navigationItem.backBarButtonItem?.tintColor = .black
     }
     
+    @objc private func openRecieve() {
+        let recieveCryptoController = RecieveCryptoController()
+        let navController = UINavigationController(rootViewController: recieveCryptoController)
+        navController.modalPresentationStyle = .popover
+        self.present(navController, animated: true, completion: nil)
+    }
+    
+    @objc private func openSend() {
+        let sendCryptoController = SendCryptoController()
+        let navController = UINavigationController(rootViewController: sendCryptoController)
+        navController.modalPresentationStyle = .popover
+        self.present(navController, animated: true, completion: nil)
+    }
+    
     func failed() {
         let ac = UIAlertController(title: "Scanning not supported", message: "Your device does not support scanning a code from an item. Please use a device with a camera.", preferredStyle: .alert)
         ac.addAction(UIAlertAction(title: "OK", style: .default))
@@ -303,8 +332,11 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
     
     func found(code: String) {
         // verify that the QR code belongs to the bitsig app or has the link to it as the first one
-        
-        if code == "https://apps.apple.com/in/app/bitsig/id1566975289" {
+        if code == "https://bitsig.org/token?id=1" {
+            if let firstTokenViewed = try? JSONEncoder().encode(true) {
+                UserDefaults.standard.set(firstTokenViewed, forKey: "firstTokenViewed")
+            }
+
             // check if the user has a wallet
             if let hasWalletRetrieved = UserDefaults.standard.object(forKey: "hasWallet") as? Data {
                 guard let hasWallet = try? JSONDecoder().decode(Bool.self, from: hasWalletRetrieved) else {
@@ -313,6 +345,7 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
                 if hasWallet {
                     let signController = SignController()
                     signController.QRCodeValue = code
+                    // this is really slow for some reason
                     navigationController?.pushViewController(signController, animated: true)
                 }
                 else {
@@ -354,14 +387,13 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         present(createWalletController, animated: true, completion: nil)
     }
     
-    func getWalletBalance() {
-        self.getWalletAddress(completion: { (wallet) in
-            let walletAddress = EthereumAddress(wallet.address)! // Address which balance we want to know
-            do {
-                let balanceResult = try! self.web3.eth.getBalance(address: walletAddress)
+    @objc func getWalletBalance() {
+        getWallet(completion: { (wallet) in
+            let walletAddress = EthereumAddress(wallet.address) // Address which balance we want to know
+            if walletAddress != nil {
+                let balanceResult = try! self.web3.eth.getBalance(address: walletAddress!)
                 let balanceString = Web3.Utils.formatToEthereumUnits(balanceResult, toUnits: .eth, decimals: 3)!
-                print(balanceString)
-                
+
                 // Make the GET request for our API URL to get the value NSNumber
                 self.makeValueGETRequest(url: URL(string: "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD")!) { (value) in
 
@@ -371,15 +403,16 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
                         let valueInt = value?.doubleValue
                         let balance_dollars = balanceEthInt * valueInt!
                         let balance_string = self.formatAsCurrencyString(value: balance_dollars as NSNumber)
-                        
+
                         let attributedText = NSMutableAttributedString(string: "Balance:\n", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 14), NSAttributedString.Key.foregroundColor: UIColor.init(white: 0.9, alpha: 1)])
                         attributedText.append(NSMutableAttributedString(string: balance_string!, attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 40), NSAttributedString.Key.foregroundColor: UIColor.init(white: 1, alpha: 1)]))
                         self.balanceLabel.attributedText = attributedText
+                        
+                        if let walletBalance = try? JSONEncoder().encode(balance_string) {
+                            UserDefaults.standard.set(walletBalance, forKey: "walletBalance")
+                        }
                     }
                 }
-            }
-            catch {
-                print("getting balance failed")
             }
         })
     }
@@ -417,39 +450,16 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
     }
     
     @objc func goToFirstTokenSignPage() {
-        found(code: "https://apps.apple.com/in/app/bitsig/id1566975289")
+        found(code: "https://bitsig.org/token?id=1")
     }
     
     @objc func closeFirstNFT() {
+        if let firstTokenViewed = try? JSONEncoder().encode(true) {
+            UserDefaults.standard.set(firstTokenViewed, forKey: "firstTokenViewed")
+        }
         self.signFirstNFTButton.isHidden = true
         self.closeFirstNFTButton.isHidden = true
         self.signFirstNFTBackground.isHidden = true
-    }
-
-    func getWalletAddress(completion: @escaping (Wallet) -> ()) {
-        let password_service = "passService"
-        let mnemonics_service = "mnemonicsService"
-        let account = "myAccount"
-        if let password = KeychainService.loadPassword(service: password_service, account: account) {
-            if let mnemonics = KeychainService.loadPassword(service: mnemonics_service, account: account) {
-                // get wallet
-                let keystore = try! BIP32Keystore(
-                    mnemonics: mnemonics,
-                    password: password,
-                    mnemonicsPassword: "",
-                    language: .english)!
-                let name = "New HD Wallet"
-                let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-                let address = keystore.addresses!.first!.address
-                let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-                
-                // should really do this somewhere else
-                let keystoreManager = KeystoreManager([keystore])
-                self.web3.addKeystoreManager(keystoreManager)
-                
-                completion(wallet)
-            }
-        }
     }
     
 /// Takes an API URL and performs a GET request on it to try to get back an NSNumber
@@ -507,3 +517,24 @@ class ScanController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         return .portrait
     }
 }
+
+// inside signPersonalMessage:
+//var privateKey = try keystore.UNSAFE_getPrivateKeyData(password: password, account: account)
+//defer {Data.zero(&privateKey)}
+//guard let hash = Web3.Utils.hashPersonalMessage(personalMessage) else {return nil}
+//let (compressedSignature, _) = SECP256K1.signForRecovery(hash: hash, privateKey: privateKey, useExtraEntropy: useExtraEntropy)
+
+
+
+//guard let signature = try Web3Signer.signPersonalMessage(message, keystore: self.web3.provider.attachedKeystoreManager!, account: from, password: password) else { throw Web3Error.inputError(desc: "Failed to locally sign a message") }
+
+
+//public func ecrecover(personalMessage: Data, signature: Data) throws -> EthereumAddress {
+//    guard let recovered = Web3.Utils.personalECRecover(personalMessage, signature: signature) else {
+//        throw Web3Error.dataError
+//    }
+//    return recovered
+//}
+
+
+// can prob use extension web3.Personal

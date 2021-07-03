@@ -12,6 +12,7 @@ import FirebaseAuth
 import FirebaseDatabase
 import FirebaseMessaging
 import FirebaseStorage
+import web3swift
 
 extension Auth {
     func createUserInDatabase(withEmail email: String, password: String, completion: @escaping (Error?) -> ()) {
@@ -52,7 +53,7 @@ extension Storage {
 }
 
 extension Database {
-    func uploadUser(withUID uid: String, eth_address: String, name: String? = nil, twitter_username: String? = nil, followers_count: Int? = nil, token_id: String? = nil, profileImage: UIImage? = nil, completion: @escaping (() -> ())) {
+    func uploadUser(withUID uid: String, eth_address: String, name: String? = nil, twitter_username: String? = nil, followers_count: Int? = nil,  profileImage: UIImage? = nil, completion: @escaping (() -> ())) {
         
         let sync = DispatchGroup()
         sync.enter()
@@ -99,21 +100,14 @@ extension Database {
                         return
                     }
                     
-                    if token_id != nil {
-                        self.signToken(withUID: uid, eth_address: eth_address, token_id: token_id!) {
-                            completion()
-                        }
-                    }
-                    else {
-                        completion()
-                    }
+                    completion()
                 })
             })
         }
     }
     
-    func createTwitterUser(withUID uid: String, username: String? = nil, profile_image_url: String? = nil, followers_count: Int? = nil, verified: Int? = nil, id: String? = nil, completion: @escaping (() -> ())) {
-        var dictionaryValues = ["bitsig_uid": uid]
+    func createTwitterUser(withUID uid: String, username: String? = nil, profile_image_url: String? = nil, followers_count: Int? = nil, verified: Int? = nil, id: String, completion: @escaping (() -> ())) {
+        var dictionaryValues = ["twitter_id": id]
         if profile_image_url != nil {
             dictionaryValues["profile_image_url"] = profile_image_url
         }
@@ -123,12 +117,9 @@ extension Database {
         if verified != nil {
             dictionaryValues["verified"] = String(verified!)
         }
-        if id != nil {
-            dictionaryValues["twitter_id"] = id
-        }
         
-        let values = [username: dictionaryValues]
-        Database.database().reference().child("twitter_users").updateChildValues(values, withCompletionBlock: { (err, ref) in
+        let values = [uid: dictionaryValues]
+        Database.database().reference().child("twitter_users").child(username!).updateChildValues(values, withCompletionBlock: { (err, ref) in
             if let err = err {
                 print("Failed to upload user to database:", err)
                 return
@@ -146,99 +137,141 @@ extension Database {
                 print("Failed to sign token in database:", err)
                 return
             }
-            Database.database().reference().child("tokens").child(token_id).child("signer_addresses").child(eth_address).setValue(1, withCompletionBlock: { (err, ref) in
-                if let err = err {
-                    print("Failed to sign token in database:", err)
-                    return
-                }
-                
-                // fetch user here
-                self.userExists(withUID: uid, completion: { (exists) in
-                    if exists {
-                        Database.database().fetchUser(withUID: uid, completion: { (user) in
-                            // make sure to include a spot the the num signed here to be set by cloud function
-                            
-                            let sync = DispatchGroup()
-                            
-                            print(user)
-                            
-                            if user.name != "" {
-                                sync.enter()
-                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("name").setValue(user.name, withCompletionBlock: { (err, ref) in
-                                    if let err = err {
-                                        print("Failed to sign token in database:", err)
-                                        return
-                                    }
-                                    sync.leave()
-                                })
-                            }
-                            
+            // fetch user here
+            self.userExists(withUID: uid, completion: { (exists) in
+                if exists {
+                    Database.database().fetchUser(withUID: uid, completion: { (user) in
+                        // make sure to include a spot the the num signed here to be set by cloud function
+                        
+                        let sync = DispatchGroup()
+                        
+                        print(user)
+                        
+                        if user.name != "" {
                             sync.enter()
-                            Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("num_signer").setValue(1, withCompletionBlock: { (err, ref) in
+                            Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("name").setValue(user.name, withCompletionBlock: { (err, ref) in
                                 if let err = err {
                                     print("Failed to sign token in database:", err)
                                     return
                                 }
                                 sync.leave()
                             })
-                            
-                            if user.twitter != "" {
-                                sync.enter()
-                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("twitter").setValue(user.twitter, withCompletionBlock: { (err, ref) in
-                                    if let err = err {
-                                        print("Failed to sign token in database:", err)
-                                        return
-                                    }
-                                    sync.leave()
-                                })
+                        }
+                        
+                        sync.enter()
+                        Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("num_signer").setValue(1, withCompletionBlock: { (err, ref) in
+                            if let err = err {
+                                print("Failed to sign token in database:", err)
+                                return
                             }
-                            
-                            if user.twitter_followers_count != 0 {
-                                sync.enter()
-                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("twitter_followers_count").setValue(user.twitter_followers_count, withCompletionBlock: { (err, ref) in
-                                    if let err = err {
-                                        print("Failed to sign token in database:", err)
-                                        return
-                                    }
-                                    sync.leave()
-                                })
-                            }
-                            
-                            if user.ethereum_address != "" {
-                                sync.enter()
-                                Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("ethereum_address").setValue(user.ethereum_address, withCompletionBlock: { (err, ref) in
-                                    if let err = err {
-                                        print("Failed to sign token in database:", err)
-                                        return
-                                    }
-                                    sync.leave()
-                                })
-                            }
-                            
-                            sync.notify(queue: .main){
-                                completion()
-                            }
+                            sync.leave()
                         })
-                    }
-                    else {
-                        print("User doesn't exist")
-                        return
-                    }
-                })
+                        
+                        if user.twitter != "" {
+                            sync.enter()
+                            Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("twitter").setValue(user.twitter, withCompletionBlock: { (err, ref) in
+                                if let err = err {
+                                    print("Failed to sign token in database:", err)
+                                    return
+                                }
+                                sync.leave()
+                            })
+                        }
+                        
+                        if user.twitter_followers_count != 0 {
+                            sync.enter()
+                            Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("twitter_followers_count").setValue(user.twitter_followers_count, withCompletionBlock: { (err, ref) in
+                                if let err = err {
+                                    print("Failed to sign token in database:", err)
+                                    return
+                                }
+                                sync.leave()
+                            })
+                        }
+                        
+                        if user.ethereum_address != "" {
+                            sync.enter()
+                            Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("ethereum_address").setValue(user.ethereum_address, withCompletionBlock: { (err, ref) in
+                                if let err = err {
+                                    print("Failed to sign token in database:", err)
+                                    return
+                                }
+                                sync.leave()
+                            })
+                        }
+                        
+                        sync.enter()
+                        print("start get private key")
+                        getPrivateKey(completion: { (pkData) in
+                            print("got private key")
+                            
+                            let message = "contractAddress:abcd_tokenId:1"
+                            let messageData = message.data(using: .utf8)
+                            if messageData != nil {
+                                let hashed_message = Web3.Utils.hashPersonalMessage(messageData!)
+                                if hashed_message != nil {
+                                    let (signature, _) = SECP256K1.signForRecovery(hash: hashed_message!, privateKey: pkData)
+                                    if signature != nil {
+                                        Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("message").setValue(message, withCompletionBlock: { (err, ref) in
+                                            if let err = err {print("Failed to sign token in database:", err);return}
+                                            
+                                            Database.database().reference().child("tokens").child(token_id).child("signer_users").child(uid).child("signature").setValue("0x" + (signature?.toHexString())!, withCompletionBlock: { (err, ref) in
+                                                if let err = err {print("Failed to sign token in database:", err);return}
+                                                sync.leave()
+                                            })
+                                            
+                                            // this worked:
+                                            // tested here: https://codesandbox.io/s/get-accounts-with-portis-forked-9ep85?file=/src/index.js
+                                            // var m = "contractAddress:abcd_tokenId:1";
+                                            // var a = web3.eth.accounts.recover(m,"0x9df9aeffbb28b909887be11f820d8307c0f8511af4e07af1a19abeef7ef00eb84574e8979d97b4a577614ed93cf8e0e167c76a38c0c25a26f27859b53bbaabd81b")
+                                           //  console.log(a);
+                                        })
+                                    }
+                                    else {
+                                        print("failed to sign")
+                                        sync.leave()
+                                    }
+                                }
+                                else {
+                                    print("failed to sign")
+                                    sync.leave()
+                                }
+                            }
+                            else {
+                                print("failed to sign")
+                                sync.leave()
+                            }
+                            
+                            // for signer put the following: message, hashed_message, signature
+                            
+                            // to recover:
+                            // let recovered = Web3.Utils.personalECRecover(hash!, signature: signature!)!
+                            
+                            // for web3.js:
+                            // web3.eth.accounts.hashMessage(personalMessage);
+                            // web3.eth.personal.sign(dataToSign, address, password [, callback])
+                            // web3.eth.personal.ecRecover(dataThatWasSigned, signature [, callback])
+                            
+                            // ipfs:
+                            // For now I can manually update it based on the database entrees, but would want it decentrilized.
+                            // Decentrilized:
+                            //  Retrieve existing signers file, modify it to add themselves, use an ipfs gateway api to upload that
+                            //  file and save the content hash.
+                            //  Hardest part: how to set the new file with the signature as the head? Do I allow anybody to modify that
+                            //  part of the smart contract? Centrilized solution just puts it in the database.
+                        });
+                        
+                        sync.notify(queue: .main){
+                            completion()
+                        }
+                    })
+                }
+                else {
+                    print("User doesn't exist")
+                    return
+                }
             })
         })
-    }
-    
-    func hasSignedToken(eth_address: String, token_id: String, completion: @escaping (Bool) -> ()) {
-        Database.database().reference().child("tokens").child(token_id).child("signer_addresses").child(eth_address).observeSingleEvent(of: .value, with: { (snapshot) in
-            guard (snapshot.value as? Int) != nil else {
-                completion(false)
-                return
-            }
-            completion(true)
-        }) { (err) in
-            print("Failed to fetch user from database:", err)
-        }
     }
     
     func hasUserSignedToken(token_id: String, completion: @escaping (Bool) -> ()) {

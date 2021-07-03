@@ -75,7 +75,7 @@ class SignaturesController: UIViewController {
     
     @objc func openFirstToken() {
         let signController = SignController()
-        signController.QRCodeValue = "https://apps.apple.com/in/app/bitsig/id1566975289"
+        signController.QRCodeValue = "https://bitsig.org/token?id=1"
         navigationController?.pushViewController(signController, animated: true)
     }
 }

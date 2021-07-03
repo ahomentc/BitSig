@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		751D7A3826866EED002E73A8 /* web3utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751D7A3726866EED002E73A8 /* web3utilities.swift */; };
+		751D7A3C268FEC93002E73A8 /* RecieveCryptoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751D7A3B268FEC93002E73A8 /* RecieveCryptoController.swift */; };
+		751D7A3E268FF74E002E73A8 /* SendCryptoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751D7A3D268FF74E002E73A8 /* SendCryptoController.swift */; };
 		75318E24265070A60099CD4E /* TokenSignersController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75318E23265070A50099CD4E /* TokenSignersController.swift */; };
 		75318E2C26508CC80099CD4E /* TokenSignerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75318E2B26508CC80099CD4E /* TokenSignerCell.swift */; };
 		75926ABB264A1A3B0001D11C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75926ABA264A1A3B0001D11C /* GoogleService-Info.plist */; };
@@ -71,6 +74,9 @@
 
 /* Begin PBXFileReference section */
 		1AB004E829A10B4898E61864 /* Pods-BitSigApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BitSigApp.debug.xcconfig"; path = "Target Support Files/Pods-BitSigApp/Pods-BitSigApp.debug.xcconfig"; sourceTree = "<group>"; };
+		751D7A3726866EED002E73A8 /* web3utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = web3utilities.swift; sourceTree = "<group>"; };
+		751D7A3B268FEC93002E73A8 /* RecieveCryptoController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecieveCryptoController.swift; sourceTree = "<group>"; };
+		751D7A3D268FF74E002E73A8 /* SendCryptoController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCryptoController.swift; sourceTree = "<group>"; };
 		75318E23265070A50099CD4E /* TokenSignersController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSignersController.swift; sourceTree = "<group>"; };
 		75318E2B26508CC80099CD4E /* TokenSignerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSignerCell.swift; sourceTree = "<group>"; };
 		75926ABA264A1A3B0001D11C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -163,6 +169,7 @@
 				75CBAEE3264B453F004D53C7 /* KeyChain.swift */,
 				75CBB092264D1207004D53C7 /* PushNotificationManager.swift */,
 				75CBB096264D124B004D53C7 /* PushNotificationSender.swift */,
+				751D7A3726866EED002E73A8 /* web3utilities.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -247,6 +254,8 @@
 				75CBAE7C264A6A90004D53C7 /* SignController.swift */,
 				75CBB05D264C9A08004D53C7 /* AddNameController.swift */,
 				75CBB080264CA089004D53C7 /* SuccessfulSignController.swift */,
+				751D7A3B268FEC93002E73A8 /* RecieveCryptoController.swift */,
+				751D7A3D268FF74E002E73A8 /* SendCryptoController.swift */,
 			);
 			path = Sign;
 			sourceTree = "<group>";
@@ -299,14 +308,13 @@
 				D5B32DC92648FCEF00513D37 /* Resources */,
 				77E21149B0D9850E06DE400B /* [CP] Embed Pods Frameworks */,
 				75CBAE4E264A4CE8004D53C7 /* Embed Frameworks */,
+				63DB52A14046BFA2265E50C2 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = BitSigApp;
-			packageProductDependencies = (
-			);
 			productName = BitSigApp;
 			productReference = D5B32DCB2648FCF000513D37 /* BitSigApp.app */;
 			productType = "com.apple.product-type.application";
@@ -379,8 +387,6 @@
 				Base,
 			);
 			mainGroup = D5B32DC22648FCEF00513D37;
-			packageReferences = (
-			);
 			productRefGroup = D5B32DCC2648FCF000513D37 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -423,6 +429,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		63DB52A14046BFA2265E50C2 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitSigApp/Pods-BitSigApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitSigApp/Pods-BitSigApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BitSigApp/Pods-BitSigApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		77E21149B0D9850E06DE400B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -473,11 +496,14 @@
 				75318E24265070A60099CD4E /* TokenSignersController.swift in Sources */,
 				75318E2C26508CC80099CD4E /* TokenSignerCell.swift in Sources */,
 				75CBAE77264A56FC004D53C7 /* Models.swift in Sources */,
+				751D7A3E268FF74E002E73A8 /* SendCryptoController.swift in Sources */,
 				75CBB097264D124B004D53C7 /* PushNotificationSender.swift in Sources */,
 				D5B32E0D264904B000513D37 /* SettingsController.swift in Sources */,
 				75CBAE46264A4ADC004D53C7 /* Extensions.swift in Sources */,
+				751D7A3826866EED002E73A8 /* web3utilities.swift in Sources */,
 				75926AC3264A3D290001D11C /* CreateWalletController.swift in Sources */,
 				75CBAE7D264A6A90004D53C7 /* SignController.swift in Sources */,
+				751D7A3C268FEC93002E73A8 /* RecieveCryptoController.swift in Sources */,
 				D5B32E07264903EC00513D37 /* SignaturesController.swift in Sources */,
 				D5B32E0A2649048100513D37 /* TokensController.swift in Sources */,
 				75CBAE73264A5578004D53C7 /* FirebaseUtilities.swift in Sources */,

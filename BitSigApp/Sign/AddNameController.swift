@@ -188,46 +188,17 @@ class AddNameController: UIViewController, UINavigationControllerDelegate {
         // profile image
         
         guard let currentLoggedInUserId = Auth.auth().currentUser?.uid else { return }
-        let password_service = "passService"
-        let mnemonics_service = "mnemonicsService"
-        let account = "myAccount"
-        if let password = KeychainService.loadPassword(service: password_service, account: account) {
-            if let mnemonics = KeychainService.loadPassword(service: mnemonics_service, account: account) {
-                // get wallet
-                print(password)
-                let keystore = try! BIP32Keystore(
-                    mnemonics: mnemonics,
-                    password: password,
-                    mnemonicsPassword: "",
-                    language: .english)!
-                let name = "New HD Wallet"
-                let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-                let address = keystore.addresses!.first!.address
-                let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-
-                Database.database().uploadUser(withUID: currentLoggedInUserId, eth_address: wallet.address, name: nameTextField.text ?? "", twitter_username: twitter_username, followers_count: followers_count, token_id: token_id, profileImage: profileImage) {
+        print("finish")
+        getWallet(completion: { (wallet) in
+            Database.database().uploadUser(withUID: currentLoggedInUserId, eth_address: wallet.address, name: self.nameTextField.text ?? "", twitter_username: self.twitter_username, followers_count: self.followers_count, profileImage: self.profileImage) {
+                print("done uploading user")
+                Database.database().signToken(withUID: currentLoggedInUserId, eth_address: wallet.address, token_id: self.token_id) {
                     self.dismiss(animated: true, completion: {
                         self.delegate?.goToSuccessfulSignController()
                     })
                 }
             }
-            else {
-                let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-                self.present(alert, animated: true, completion: nil)
-                let when = DispatchTime.now() + 1
-                DispatchQueue.main.asyncAfter(deadline: when){
-                    alert.dismiss(animated: true, completion: nil)
-                }
-            }
-        }
-        else {
-            let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-            self.present(alert, animated: true, completion: nil)
-            let when = DispatchTime.now() + 1
-            DispatchQueue.main.asyncAfter(deadline: when){
-                alert.dismiss(animated: true, completion: nil)
-            }
-        }
+        })
     }
     
     @objc private func handlePlusPhoto() {

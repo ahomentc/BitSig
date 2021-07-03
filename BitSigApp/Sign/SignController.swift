@@ -39,6 +39,7 @@ class SignController: UIViewController, AddNameControllerDelegate {
     private let tokenImg: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
+//        iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
         iv.layer.zPosition = 5
         iv.layer.cornerRadius = 15
@@ -165,8 +166,8 @@ class SignController: UIViewController, AddNameControllerDelegate {
         self.stackView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height ).isActive = true;
         self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
         
-        let tokenImgWidthConstraint = tokenImg.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 2/3)
-        let tokenImgHeightConstraint = tokenImg.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 2/3)
+        let tokenImgWidthConstraint = tokenImg.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 4/5)
+        let tokenImgHeightConstraint = tokenImg.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 1/2)
         tokenImg.addConstraints([tokenImgWidthConstraint, tokenImgHeightConstraint])
         self.stackView.addArrangedSubview(tokenImg)
         
@@ -209,7 +210,7 @@ class SignController: UIViewController, AddNameControllerDelegate {
         guard let QRCodeValue = QRCodeValue else { return }
         
         // normally we would parse for a contract address and for a token id
-        if QRCodeValue == "https://apps.apple.com/in/app/bitsig/id1566975289" {
+        if QRCodeValue == "https://bitsig.org/token?id=1" {
             Database.database().fetchToken(tokenID: "1", completion: { (token) in
                 let url = URL(string: token.imgURL)
                 self.tokenImg.kf.setImage(with: url)
@@ -274,45 +275,14 @@ class SignController: UIViewController, AddNameControllerDelegate {
     }
     
     @objc func removeSignedButtonIfSigned() {
-        let password_service = "passService"
-        let mnemonics_service = "mnemonicsService"
-        let account = "myAccount"
-        if let password = KeychainService.loadPassword(service: password_service, account: account) {
-            if let mnemonics = KeychainService.loadPassword(service: mnemonics_service, account: account) {
-                // get wallet
-                let keystore = try! BIP32Keystore(
-                    mnemonics: mnemonics,
-                    password: password,
-                    mnemonicsPassword: "",
-                    language: .english)!
-                let name = "New HD Wallet"
-                let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-                let address = keystore.addresses!.first!.address
-                let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-                Database.database().hasSignedToken(eth_address: wallet.address, token_id: "1", completion: { (is_signed) in
-                    if is_signed {
-                        self.signButton.isHidden = true
-                        self.signedButton.isHidden = false
-                    }
-                })
-            }
-            else {
-                let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-                self.present(alert, animated: true, completion: nil)
-                let when = DispatchTime.now() + 1
-                DispatchQueue.main.asyncAfter(deadline: when){
-                    alert.dismiss(animated: true, completion: nil)
+        getWallet(completion: { (wallet) in
+            Database.database().hasUserSignedToken(token_id: "1", completion: { (is_signed) in
+                if is_signed {
+                    self.signButton.isHidden = true
+                    self.signedButton.isHidden = false
                 }
-            }
-        }
-        else {
-            let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-            self.present(alert, animated: true, completion: nil)
-            let when = DispatchTime.now() + 1
-            DispatchQueue.main.asyncAfter(deadline: when){
-                alert.dismiss(animated: true, completion: nil)
-            }
-        }
+            })
+        })
     }
         
     @objc func signToken() {
@@ -321,53 +291,22 @@ class SignController: UIViewController, AddNameControllerDelegate {
         guard let currentLoggedInUserId = Auth.auth().currentUser?.uid else { return }
         Database.database().userExists(withUID: currentLoggedInUserId, completion: { (exists) in
             if exists{
-                let password_service = "passService"
-                let mnemonics_service = "mnemonicsService"
-                let account = "myAccount"
-                if let password = KeychainService.loadPassword(service: password_service, account: account) {
-                    if let mnemonics = KeychainService.loadPassword(service: mnemonics_service, account: account) {
-                        // get wallet
-                        let keystore = try! BIP32Keystore(
-                            mnemonics: mnemonics,
-                            password: password,
-                            mnemonicsPassword: "",
-                            language: .english)!
-                        let name = "New HD Wallet"
-                        let keyData = try! JSONEncoder().encode(keystore.keystoreParams)
-                        let address = keystore.addresses!.first!.address
-                        let wallet = Wallet(address: address, data: keyData, name: name, isHD: true)
-                        Database.database().hasSignedToken(eth_address: wallet.address, token_id: "1", completion: { (is_signed) in
-                            if is_signed {
+                getWallet(completion: { (wallet) in
+                    Database.database().hasUserSignedToken(token_id: "1", completion: { (is_signed) in
+                        if is_signed {
+                            self.goToSuccessfulSignController()
+                        }
+                        else {
+                            Database.database().signToken(withUID:currentLoggedInUserId, eth_address: wallet.address, token_id: "1") {
                                 self.goToSuccessfulSignController()
                             }
-                            else {
-                                Database.database().signToken(withUID:currentLoggedInUserId, eth_address: wallet.address, token_id: "1") {
-                                    self.goToSuccessfulSignController()
-                                }
-                            }
-                        })
-                    }
-                    else {
-                        let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-                        self.present(alert, animated: true, completion: nil)
-                        let when = DispatchTime.now() + 1
-                        DispatchQueue.main.asyncAfter(deadline: when){
-                            alert.dismiss(animated: true, completion: nil)
                         }
-                    }
-                }
-                else {
-                    let alert = UIAlertController(title: "An Error Occured.", message: "Log out and log back in to resolve.", preferredStyle: .alert)
-                    self.present(alert, animated: true, completion: nil)
-                    let when = DispatchTime.now() + 1
-                    DispatchQueue.main.asyncAfter(deadline: when){
-                        alert.dismiss(animated: true, completion: nil)
-                    }
-                }
+                    })
+                })
             }
             else {
                 guard let QRCodeValue = self.QRCodeValue else { return }
-                if QRCodeValue == "https://apps.apple.com/in/app/bitsig/id1566975289" {
+                if QRCodeValue == "https://bitsig.org/token?id=1" {
                     let token_id = "1"
                     let addNameController = AddNameController()
                     addNameController.modalPresentationStyle = .fullScreen
